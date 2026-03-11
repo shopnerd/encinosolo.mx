@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild Horse Family Tree</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#12100a;
+  --surface:#1e1608;
+  --card-bg:#2a1e0d;
+  --card-border:#5a3e1e;
+  --accent:#c8832a;
+  --accent-light:#e8a84a;
+  --text:#f0e0c0;
+  --text-muted:#907050;
+  --link-color:#7a5a2a;
+  --stallion-border:#4a7abf;
+  --mare-border:#bf4a8a;
+  --gelding-border:#4a9a60;
+  --foal-border:#9a8a3a;
+}
+body{font-family:'Georgia',serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;user-select:none}
+
+/* ─── HEADER ─── */
+header{
+  background:linear-gradient(135deg,#2a1e0d,#12100a);
+  border-bottom:2px solid var(--accent);
+  padding:10px 18px;
+  display:flex;align-items:center;gap:14px;
+  flex-shrink:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,0.6);
+}
+header h1{font-size:1.5rem;color:var(--accent-light);text-shadow:0 2px 6px rgba(0,0,0,0.7);letter-spacing:0.03em}
+.subtitle{font-size:0.8rem;color:var(--text-muted);font-style:italic}
+.toolbar{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+
+/* ─── BUTTONS ─── */
+.btn{
+  background:var(--surface);color:var(--text);
+  border:1px solid var(--card-border);
+  padding:6px 14px;border-radius:6px;cursor:pointer;
+  font-family:inherit;font-size:0.85rem;
+  transition:all .2s;white-space:nowrap;
+}
+.btn:hover{background:var(--card-bg);border-color:var(--accent);color:var(--accent-light)}
+.btn-primary{background:var(--accent);color:#1a0f05;border-color:var(--accent-light);font-weight:bold}
+.btn-primary:hover{background:var(--accent-light)}
+.btn-danger{background:#3a0f0f;border-color:#7a2a2a}
+.btn-danger:hover{background:#6a1a1a;border-color:#cc4444;color:#ffaaaa}
+.btn-sm{padding:4px 10px;font-size:0.78rem}
+
+/* ─── TREE CONTAINER ─── */
+#tree-container{flex:1;overflow:hidden;position:relative;cursor:grab}
+#tree-container:active{cursor:grabbing}
+#tree-svg{width:100%;height:100%}
+.link{fill:none;stroke:var(--link-color);stroke-width:2px;stroke-opacity:0.8}
+
+/* ─── CARDS LAYER ─── */
+#cards-layer{position:absolute;top:0;left:0;transform-origin:0 0;pointer-events:none}
+
+/* ─── HORSE CARDS ─── */
+.horse-card{
+  position:absolute;width:155px;
+  background:var(--card-bg);
+  border:2px solid var(--card-border);
+  border-radius:12px;padding:10px 10px 8px;
+  cursor:pointer;transition:border-color .2s,box-shadow .2s;
+  text-align:center;pointer-events:all;
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
+.horse-card:hover{border-color:var(--accent);box-shadow:0 6px 22px rgba(200,131,42,0.35);z-index:10}
+.horse-card.selected{border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(232,168,74,0.4)}
+.horse-card.stallion{border-left:4px solid var(--stallion-border)}
+.horse-card.mare{border-left:4px solid var(--mare-border)}
+.horse-card.gelding{border-left:4px solid var(--gelding-border)}
+.horse-card.foal{border-left:4px solid var(--foal-border)}
+.card-photo{
+  width:72px;height:72px;border-radius:50%;object-fit:cover;
+  margin:0 auto 7px;display:block;
+  border:2px solid var(--card-border);background:var(--surface);
+}
+.card-icon{
+  width:72px;height:72px;border-radius:50%;
+  margin:0 auto 7px;background:var(--surface);
+  border:2px solid var(--card-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.9rem;
+}
+.card-name{font-size:0.9rem;font-weight:bold;color:var(--accent-light);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-meta{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
+.card-badge{display:inline-block;font-size:0.62rem;padding:2px 6px;border-radius:10px;margin-top:5px;background:#1a3a2a;color:#4aaa6a;border:1px solid #2a5a3a}
+
+/* ─── SIDE PANEL ─── */
+#side-panel{
+  position:fixed;right:0;top:0;height:100%;width:320px;
+  background:var(--surface);border-left:2px solid var(--card-border);
+  transform:translateX(100%);transition:transform .3s ease;
+  z-index:200;overflow-y:auto;
+  box-shadow:-4px 0 20px rgba(0,0,0,0.5);
+}
+#side-panel.open{transform:translateX(0)}
+.panel-inner{padding:20px}
+#side-panel h2{color:var(--accent-light);font-size:1.25rem;margin-bottom:4px}
+.panel-subtitle{color:var(--text-muted);font-size:0.85rem;margin-bottom:18px}
+.panel-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);display:block;margin:0 auto 14px}
+.panel-icon{width:90px;height:90px;border-radius:50%;background:var(--card-bg);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin:0 auto 14px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.detail-item .dlabel{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.detail-item .dval{font-size:0.9rem;color:var(--text)}
+.detail-full{margin-bottom:14px}
+.detail-full .dlabel{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.detail-full .dval{font-size:0.88rem;color:var(--text);line-height:1.5}
+.link-btn{color:var(--accent-light);text-decoration:none;cursor:pointer;font-family:inherit;font-size:0.88rem;background:none;border:none;padding:0;display:block;text-align:left;margin-bottom:2px}
+.link-btn:hover{text-decoration:underline}
+.panel-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--card-border)}
+.close-btn{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px}
+.close-btn:hover{color:var(--text);background:var(--card-bg)}
+.section-label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px;border-bottom:1px solid var(--card-border);padding-bottom:4px}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-overlay.hidden{display:none}
+.modal-box{
+  background:var(--surface);border:2px solid var(--card-border);
+  border-radius:14px;padding:24px;
+  width:440px;max-width:96vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.8);
+}
+.modal-box h2{color:var(--accent-light);margin-bottom:20px;font-size:1.25rem}
+.form-group{margin-bottom:13px}
+.form-group label{display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:4px}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;background:var(--card-bg);border:1px solid var(--card-border);
+  color:var(--text);padding:8px 10px;border-radius:6px;
+  font-family:inherit;font-size:0.88rem;outline:none;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:65px}
+.form-group select option{background:var(--card-bg)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checkbox-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem}
+.checkbox-row input[type="checkbox"]{width:auto;accent-color:var(--accent);cursor:pointer}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--card-border)}
+.photo-upload-area{text-align:center;margin-bottom:18px}
+.photo-upload-area img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--card-border);display:block;margin:0 auto 8px}
+.photo-placeholder-btn{
+  width:80px;height:80px;border-radius:50%;background:var(--card-bg);
+  border:2px dashed var(--card-border);display:flex;align-items:center;
+  justify-content:center;font-size:2rem;cursor:pointer;margin:0 auto 8px;
+  transition:border-color .2s;
+}
+.photo-placeholder-btn:hover{border-color:var(--accent)}
+
+/* ─── EMPTY STATE ─── */
+#empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text-muted);pointer-events:none}
+#empty-state.hidden{display:none}
+.empty-horse{font-size:6rem;opacity:.2;animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:.35}}
+#empty-state p{font-size:1.05rem;text-align:center;max-width:280px;line-height:1.6}
+
+/* ─── HUD ─── */
+.zoom-controls{position:absolute;bottom:20px;right:20px;display:flex;gap:6px;z-index:50}
+.zoom-btn{width:36px;height:36px;border-radius:8px;background:rgba(30,22,8,.9);border:1px solid var(--card-border);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.zoom-btn:hover{background:var(--card-bg);border-color:var(--accent);color:var(--accent-light)}
+.stats-bar{position:absolute;bottom:20px;left:20px;background:rgba(30,22,8,.9);border:1px solid var(--card-border);border-radius:8px;padding:6px 12px;font-size:0.78rem;color:var(--text-muted);z-index:50}
+.legend{position:absolute;top:14px;left:14px;background:rgba(30,22,8,.9);border:1px solid var(--card-border);border-radius:8px;padding:8px 12px;font-size:0.72rem;z-index:50}
+.legend-item{display:flex;align-items:center;gap:6px;margin-bottom:3px;color:var(--text-muted)}
+.legend-swatch{width:10px;height:10px;border-radius:2px}
+
+/* ─── NOTIFICATION ─── */
+.notif{position:fixed;top:76px;right:20px;background:var(--card-bg);border:1px solid var(--accent);color:var(--accent-light);padding:10px 16px;border-radius:8px;z-index:1000;font-size:0.88rem;animation:slideIn .3s ease;max-width:240px;box-shadow:0 4px 14px rgba(0,0,0,0.5)}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:7px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+</style>
+</head>
+<body>
+
+<header>
+  <span style="font-size:2rem">🐎</span>
+  <div>
+    <h1>Wild Horse Family Tree</h1>
+    <div class="subtitle">Track lineage, herds, and history</div>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add Horse</button>
+    <button class="btn" onclick="exportData()">📤 Export</button>
+    <button class="btn" onclick="document.getElementById('importFile').click()">📥 Import</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn" onclick="autoFitView()">⊡ Fit View</button>
+  </div>
+</header>
+
+<div id="tree-container">
+  <svg id="tree-svg"><g id="tree-g"><g id="links-g"></g></g></svg>
+  <div id="cards-layer"></div>
+
+  <div id="empty-state">
+    <div class="empty-horse">🐎</div>
+    <p>Your family tree is empty.<br>Click <strong style="color:var(--accent-light)">+ Add Horse</strong> to begin building your herd's history.</p>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--stallion-border)"></div> Stallion</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--mare-border)"></div> Mare</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--gelding-border)"></div> Gelding</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--foal-border)"></div> Foal</div>
+  </div>
+
+  <div class="zoom-controls">
+    <button class="zoom-btn" onclick="doZoom(1.3)" title="Zoom in">+</button>
+    <button class="zoom-btn" onclick="doZoom(0.77)" title="Zoom out">−</button>
+    <button class="zoom-btn" onclick="autoFitView()" title="Fit all">⊡</button>
+  </div>
+
+  <div class="stats-bar" id="stats-bar" style="display:none"></div>
+</div>
+
+<!-- ═══ SIDE PANEL ═══ -->
+<div id="side-panel">
+  <button class="close-btn" onclick="closeSidePanel()">×</button>
+  <div class="panel-inner" id="panel-inner"></div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal-box">
+    <h2 id="modal-title">Add Horse</h2>
+    <input type="hidden" id="f-id">
+
+    <div class="photo-upload-area">
+      <img id="photo-prev" style="display:none" alt="preview">
+      <div class="photo-placeholder-btn" id="photo-ph" onclick="document.getElementById('photo-file').click()" title="Upload photo">🐴</div>
+      <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="onPhotoUpload(event)">
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="document.getElementById('photo-file').click()">📷 Upload Photo</button>
+        <button class="btn btn-sm" id="rm-photo-btn" style="display:none" onclick="clearPhoto()">✕ Remove</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Name *</label>
+        <input id="f-name" type="text" placeholder="e.g. Thundercloud">
+      </div>
+      <div class="form-group">
+        <label>Birth Year</label>
+        <input id="f-year" type="number" placeholder="e.g. 2018" min="1800" max="2100">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Sex</label>
+        <select id="f-sex">
+          <option value="">— Unknown —</option>
+          <option value="stallion">Stallion ♂</option>
+          <option value="mare">Mare ♀</option>
+          <option value="gelding">Gelding ⚲</option>
+          <option value="foal">Foal 🐣</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input id="f-color" type="text" placeholder="e.g. Bay, Buckskin">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Markings</label>
+      <input id="f-markings" type="text" placeholder="e.g. White blaze, four stockings">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Sire (Father)</label>
+        <select id="f-sire"><option value="">— Unknown —</option></select>
+      </div>
+      <div class="form-group">
+        <label>Dam (Mother)</label>
+        <select id="f-dam"><option value="">— Unknown —</option></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-row">
+        <input type="checkbox" id="f-ranch"> Currently on ranch
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>Comments / Notes</label>
+      <textarea id="f-comments" placeholder="Observations, history, notable traits..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveHorse()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+let db = {};
+let photoBuffer = null;
+
+function uid(){ return 'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6) }
+
+function persist(){ try{ localStorage.setItem('whft2', JSON.stringify(db)) }catch(e){} }
+
+function hydrate(){
+  try{
+    const s = localStorage.getItem('whft2');
+    if(s) db = JSON.parse(s);
+  }catch(e){}
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify({v:2, horses:db}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'wild-horse-tree.json';
+  a.click();
+  toast('Data exported!');
+}
+
+function importData(e){
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try{
+      const d = JSON.parse(ev.target.result);
+      db = d.horses || d; // support v1 and v2
+      persist(); draw(); toast('Imported successfully!');
+    }catch(err){ toast('Import failed — invalid file') }
+  };
+  r.readAsText(f);
+  e.target.value='';
+}
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+function openAddModal(prefillParentId){
+  document.getElementById('modal-title').textContent = 'Add Horse';
+  document.getElementById('f-id').value = '';
+  ['f-name','f-year','f-color','f-markings','f-comments'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-sex').value = '';
+  document.getElementById('f-ranch').checked = false;
+  photoBuffer = null; refreshPhotoUI(null);
+  populateParentDrops(null);
+  if(prefillParentId){
+    const p = db[prefillParentId];
+    if(p){
+      if(p.sex==='stallion') document.getElementById('f-sire').value = prefillParentId;
+      else if(p.sex==='mare') document.getElementById('f-dam').value = prefillParentId;
+    }
+  }
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('f-name').focus(), 50);
+}
+
+function openEditModal(id){
+  const h = db[id]; if(!h) return;
+  document.getElementById('modal-title').textContent = 'Edit Horse';
+  document.getElementById('f-id').value = id;
+  document.getElementById('f-name').value = h.name||'';
+  document.getElementById('f-year').value = h.birthYear||'';
+  document.getElementById('f-sex').value = h.sex||'';
+  document.getElementById('f-color').value = h.color||'';
+  document.getElementById('f-markings').value = h.markings||'';
+  document.getElementById('f-ranch').checked = !!h.onRanch;
+  document.getElementById('f-comments').value = h.comments||'';
+  photoBuffer = h.photo||null; refreshPhotoUI(photoBuffer);
+  populateParentDrops(id);
+  document.getElementById('f-sire').value = h.sireId||'';
+  document.getElementById('f-dam').value = h.damId||'';
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function populateParentDrops(excludeId){
+  const all = Object.values(db).filter(h=>h.id!==excludeId);
+  // collect descendants to avoid circular refs
+  const desc = new Set();
+  if(excludeId) collectDesc(excludeId, desc);
+
+  const stallions = all.filter(h=>!desc.has(h.id) && h.sex!=='mare').sort((a,b)=>a.name.localeCompare(b.name));
+  const mares = all.filter(h=>!desc.has(h.id) && h.sex!=='stallion' && h.sex!=='gelding').sort((a,b)=>a.name.localeCompare(b.name));
+
+  const sEl = document.getElementById('f-sire');
+  const dEl = document.getElementById('f-dam');
+  sEl.innerHTML = '<option value="">— Unknown —</option>' + stallions.map(h=>`<option value="${h.id}">${h.name}${h.birthYear?' ('+h.birthYear+')':''}</option>`).join('');
+  dEl.innerHTML = '<option value="">— Unknown —</option>' + mares.map(h=>`<option value="${h.id}">${h.name}${h.birthYear?' ('+h.birthYear+')':''}</option>`).join('');
+}
+
+function collectDesc(id, set){
+  Object.values(db).filter(h=>h.sireId===id||h.damId===id).forEach(c=>{
+    if(!set.has(c.id)){ set.add(c.id); collectDesc(c.id,set); }
+  });
+}
+
+function onPhotoUpload(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{ photoBuffer=ev.target.result; refreshPhotoUI(photoBuffer); };
+  r.readAsDataURL(f);
+}
+
+function refreshPhotoUI(data){
+  const prev=document.getElementById('photo-prev');
+  const ph=document.getElementById('photo-ph');
+  const rm=document.getElementById('rm-photo-btn');
+  if(data){ prev.src=data; prev.style.display='block'; ph.style.display='none'; rm.style.display='inline-block'; }
+  else { prev.style.display='none'; ph.style.display='flex'; rm.style.display='none'; }
+}
+
+function clearPhoto(){ photoBuffer=null; refreshPhotoUI(null); document.getElementById('photo-file').value=''; }
+
+function saveHorse(){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ toast('Please enter a name!'); document.getElementById('f-name').focus(); return; }
+  const editId = document.getElementById('f-id').value;
+  const id = editId || uid();
+  db[id]={
+    id, name,
+    birthYear: document.getElementById('f-year').value ? +document.getElementById('f-year').value : null,
+    sex: document.getElementById('f-sex').value||null,
+    color: document.getElementById('f-color').value.trim()||null,
+    markings: document.getElementById('f-markings').value.trim()||null,
+    onRanch: document.getElementById('f-ranch').checked,
+    comments: document.getElementById('f-comments').value.trim()||null,
+    photo: photoBuffer,
+    sireId: document.getElementById('f-sire').value||null,
+    damId: document.getElementById('f-dam').value||null,
+  };
+  persist(); closeModal(); draw();
+  toast(`${name} ${editId?'updated':'added'}!`);
+}
+
+function deleteHorse(id){
+  const h=db[id]; if(!h) return;
+  if(!confirm(`Delete ${h.name}? Their children will remain but lose this parent link.`)) return;
+  Object.values(db).forEach(x=>{ if(x.sireId===id) x.sireId=null; if(x.damId===id) x.damId=null; });
+  delete db[id];
+  persist(); closeSidePanel(); draw(); toast(`${h.name} removed`);
+}
+
+// ══════════════════════════════════════════════
+//  SIDE PANEL
+// ══════════════════════════════════════════════
+let selectedId = null;
+
+function showDetail(id){
+  const h=db[id]; if(!h) return;
+  selectedId=id;
+  // highlight selected card
+  document.querySelectorAll('.horse-card').forEach(c=>c.classList.toggle('selected',c.dataset.id===id));
+
+  const SEX_ICON={stallion:'♂',mare:'♀',gelding:'⚲',foal:'🐣'};
+  const SEX_LABEL={stallion:'Stallion',mare:'Mare',gelding:'Gelding',foal:'Foal'};
+  const sire=h.sireId?db[h.sireId]:null;
+  const dam=h.damId?db[h.damId]:null;
+  const children=Object.values(db).filter(x=>x.sireId===id||x.damId===id).sort((a,b)=>a.name.localeCompare(b.name));
+
+  let html=`
+  <div style="text-align:center;margin-bottom:18px">
+    ${h.photo?`<img class="panel-photo" src="${h.photo}" alt="${h.name}">`:`<div class="panel-icon">${sexIcon(h.sex)}</div>`}
+    <h2>${h.name}</h2>
+    <div class="panel-subtitle">${(SEX_ICON[h.sex]||'')+'  '+(SEX_LABEL[h.sex]||'Unknown sex')}</div>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-item"><div class="dlabel">Birth Year</div><div class="dval">${h.birthYear||'—'}</div></div>
+    <div class="detail-item"><div class="dlabel">On Ranch</div><div class="dval">${h.onRanch?'✅ Yes':'❌ No'}</div></div>
+    <div class="detail-item"><div class="dlabel">Color</div><div class="dval">${h.color||'—'}</div></div>
+    <div class="detail-item"><div class="dlabel">Markings</div><div class="dval">${h.markings||'—'}</div></div>
+  </div>
+  <div class="section-label">Lineage</div>
+  <div class="detail-full">
+    <div class="dlabel">Sire (Father)</div>
+    <div class="dval">${sire?`<button class="link-btn" onclick="showDetail('${sire.id}')">🐴 ${sire.name}</button>`:'—'}</div>
+  </div>
+  <div class="detail-full">
+    <div class="dlabel">Dam (Mother)</div>
+    <div class="dval">${dam?`<button class="link-btn" onclick="showDetail('${dam.id}')">🐎 ${dam.name}</button>`:'—'}</div>
+  </div>
+  ${children.length>0?`
+  <div class="section-label">Offspring (${children.length})</div>
+  <div class="detail-full"><div class="dval">
+    ${children.map(c=>`<button class="link-btn" onclick="showDetail('${c.id}')">${sexIcon(c.sex)} ${c.name}${c.birthYear?' · '+c.birthYear:''}</button>`).join('')}
+  </div></div>`:''}
+  ${h.comments?`
+  <div class="section-label">Notes</div>
+  <div class="detail-full"><div class="dval" style="white-space:pre-wrap;font-style:italic">${h.comments}</div></div>`:''}
+  <div class="panel-actions">
+    <button class="btn" onclick="openEditModal('${id}')">✏️ Edit</button>
+    <button class="btn" onclick="openAddModal('${id}')">+ Child</button>
+    <button class="btn btn-danger" onclick="deleteHorse('${id}')">🗑️</button>
+  </div>`;
+
+  document.getElementById('panel-inner').innerHTML=html;
+  document.getElementById('side-panel').classList.add('open');
+}
+
+function closeSidePanel(){
+  document.getElementById('side-panel').classList.remove('open');
+  selectedId=null;
+  document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected'));
+}
+
+function sexIcon(sex){
+  return {stallion:'🐴',mare:'🐎',gelding:'🐴',foal:'🐣'}[sex]||'🐎';
+}
+
+// ══════════════════════════════════════════════
+//  TREE RENDERING
+// ══════════════════════════════════════════════
+const CARD_W=155, CARD_H=160, H_PAD=48, V_PAD=70;
+let zoomBehavior, lastFitTransform=d3.zoomIdentity;
+
+function initD3(){
+  const svg=d3.select('#tree-svg');
+  const g=d3.select('#tree-g');
+  zoomBehavior=d3.zoom().scaleExtent([0.08,3]).on('zoom',ev=>{
+    g.attr('transform',ev.transform);
+    document.getElementById('cards-layer').style.transform=
+      `translate(${ev.transform.x}px,${ev.transform.y}px) scale(${ev.transform.k})`;
+  });
+  svg.call(zoomBehavior);
+}
+
+function doZoom(factor){
+  d3.select('#tree-svg').transition().duration(280).call(zoomBehavior.scaleBy,factor);
+}
+
+function autoFitView(){
+  const all=Object.values(db);
+  if(!all.length) return;
+  // Re-draw first so positions are fresh, then just apply stored transform
+  draw(true);
+}
+
+function draw(fitAfter){
+  const all=Object.values(db);
+  document.getElementById('empty-state').classList.toggle('hidden',all.length>0);
+
+  const sb=document.getElementById('stats-bar');
+  if(all.length>0){
+    sb.style.display='block';
+    const onR=all.filter(h=>h.onRanch).length;
+    const stallions=all.filter(h=>h.sex==='stallion').length;
+    const mares=all.filter(h=>h.sex==='mare').length;
+    sb.textContent=`${all.length} horses · ${stallions} stallions · ${mares} mares · ${onR} on ranch`;
+  } else { sb.style.display='none'; }
+
+  if(!all.length){ clearCanvas(); return; }
+
+  const idSet=new Set(all.map(h=>h.id));
+
+  // Primary parent: sire first (if in DB), else dam
+  function primaryParent(h){
+    if(h.sireId && idSet.has(h.sireId)) return h.sireId;
+    if(h.damId && idSet.has(h.damId)) return h.damId;
+    return null;
+  }
+
+  // Find roots
+  const roots=all.filter(h=>primaryParent(h)===null);
+
+  // Build node tree recursively with cycle protection
+  function buildNode(id, ancestors=new Set()){
+    if(ancestors.has(id)) return null;
+    const next=new Set(ancestors); next.add(id);
+    const kids=all.filter(h=>primaryParent(h)===id);
+    return { id, children: kids.map(k=>buildNode(k.id,next)).filter(Boolean) };
+  }
+
+  let hData;
+  if(roots.length===1){
+    hData=buildNode(roots[0].id);
+  } else {
+    hData={ id:'__root__', children: roots.map(r=>buildNode(r.id)).filter(Boolean) };
+  }
+
+  const root=d3.hierarchy(hData);
+  const treeLayout=d3.tree().nodeSize([CARD_W+H_PAD, CARD_H+V_PAD]);
+  treeLayout(root);
+
+  const nodes=root.descendants().filter(d=>d.data.id!=='__root__');
+  const links=root.links().filter(l=>l.source.data.id!=='__root__');
+
+  // Draw SVG links (bezier curves card-bottom to card-top)
+  const linksG=d3.select('#links-g');
+  linksG.selectAll('*').remove();
+  const linkGen=d3.linkVertical().x(d=>d.x).y(d=>d.y);
+  linksG.selectAll('.link').data(links).enter().append('path').attr('class','link')
+    .attr('d',d=>linkGen({
+      source:{x:d.source.x, y:d.source.y+CARD_H/2+2},
+      target:{x:d.target.x, y:d.target.y-CARD_H/2-2}
+    }));
+
+  // Draw HTML cards
+  const layer=document.getElementById('cards-layer');
+  layer.innerHTML='';
+  nodes.forEach(node=>{
+    const h=db[node.data.id]; if(!h) return;
+    const card=makeCard(h);
+    card.style.left=(node.x-CARD_W/2)+'px';
+    card.style.top=(node.y-CARD_H/2)+'px';
+    if(h.id===selectedId) card.classList.add('selected');
+    layer.appendChild(card);
+  });
+
+  // Compute fit transform
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  nodes.forEach(n=>{
+    minX=Math.min(minX,n.x-CARD_W/2); maxX=Math.max(maxX,n.x+CARD_W/2);
+    minY=Math.min(minY,n.y-CARD_H/2); maxY=Math.max(maxY,n.y+CARD_H/2);
+  });
+  const cont=document.getElementById('tree-container');
+  const cw=cont.clientWidth, ch=cont.clientHeight;
+  const tw=maxX-minX, th=maxY-minY;
+  const scale=Math.min(.88*cw/(tw||1), .85*ch/(th||1), 1.4);
+  const tx=cw/2-scale*(minX+tw/2);
+  const ty=Math.max(30,-minY*scale)+20;
+  lastFitTransform=d3.zoomIdentity.translate(tx,ty).scale(scale);
+
+  if(fitAfter!==false){
+    d3.select('#tree-svg').transition().duration(500).call(zoomBehavior.transform,lastFitTransform);
+  }
+}
+
+function makeCard(h){
+  const card=document.createElement('div');
+  card.className='horse-card'+(h.sex?' '+h.sex:'');
+  card.dataset.id=h.id;
+
+  const SEX_ICON={stallion:'♂',mare:'♀',gelding:'⚲',foal:'🐣'};
+  const SEX_LABEL={stallion:'Stallion',mare:'Mare',gelding:'Gelding',foal:'Foal'};
+
+  card.innerHTML=`
+    ${h.photo
+      ?`<img class="card-photo" src="${h.photo}" alt="${h.name}">`
+      :`<div class="card-icon">${sexIcon(h.sex)}</div>`
+    }
+    <div class="card-name" title="${h.name}">${h.name}</div>
+    <div class="card-meta">
+      ${SEX_ICON[h.sex]||'?'} ${SEX_LABEL[h.sex]||'Unknown'}${h.birthYear?' · '+h.birthYear:''}
+      ${h.color?`<br>${h.color}`:''}
+      ${h.markings?`<br><em style="font-size:.68rem;color:var(--text-muted)">${h.markings}</em>`:''}
+    </div>
+    ${h.onRanch?'<span class="card-badge">🏠 On Ranch</span>':''}
+  `;
+
+  card.addEventListener('click',e=>{ e.stopPropagation(); showDetail(h.id); });
+  return card;
+}
+
+function clearCanvas(){
+  d3.select('#links-g').selectAll('*').remove();
+  document.getElementById('cards-layer').innerHTML='';
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function toast(msg){
+  document.querySelectorAll('.notif').forEach(n=>n.remove());
+  const n=document.createElement('div'); n.className='notif'; n.textContent=msg;
+  document.body.appendChild(n);
+  setTimeout(()=>n.remove(),2800);
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  hydrate();
+  initD3();
+  draw();
+
+  // Close modal on backdrop click
+  document.getElementById('modal-overlay').addEventListener('click',e=>{
+    if(e.target===document.getElementById('modal-overlay')) closeModal();
+  });
+
+  // Close side panel on tree background click
+  document.getElementById('tree-container').addEventListener('click',()=>closeSidePanel());
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){ closeModal(); closeSidePanel(); }
+    if(e.key==='n' && !e.target.matches('input,textarea,select') && !document.getElementById('modal-overlay').classList.contains('hidden')===false){ openAddModal(); }
+  });
+});
+</script>
+</body>
+</html>
