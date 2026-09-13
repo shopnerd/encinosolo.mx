@@ -195,6 +195,8 @@ body.simple .open{padding:16px 12px 16px 0}
 .gp{margin:0;color:var(--muted);text-wrap:pretty}
 .gstep{display:grid;gap:10px}
 .gate input{border:1px solid var(--line2);background:var(--raised);border-radius:10px;padding:12px 14px;font-size:18px;width:100%}
+.gerr{margin:0;padding:12px 14px;border-radius:10px;background:var(--late-soft);color:var(--late);font-weight:700;text-wrap:pretty}
+.gate .link{justify-self:start}
 .btn.big{padding:13px 16px;font-size:16px}
 .person{grid-template-columns:minmax(0,1fr) auto;align-items:start}
 .person .acts{flex-wrap:wrap;justify-content:flex-end}
@@ -215,7 +217,9 @@ body.simple .open{padding:16px 12px 16px 0}
     <div class="gstep" id="stepEmail">
       <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="your@email.com">
       <button class="btn primary big" id="sendCode" type="button">Send me a code · Mandar código</button>
+      <button class="link" id="haveCode" type="button">I already have a code · Ya tengo un código</button>
     </div>
+    <p class="gerr" id="gateErr" role="alert" hidden></p>
     <div class="gstep" id="stepCode" hidden>
       <p class="gp" id="codeMsg"></p>
       <input id="code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" maxlength="10">
@@ -979,25 +983,37 @@ function showGate(text, withSignOut){
 }
 function showLogin(){
  showGate(null);
- let email='';
+ let email='', busy=false;
+ const err=t=>{ $('#gateErr').textContent=t||''; $('#gateErr').hidden=!t; };
+ const readEmail=()=>{ email=$('#email').value.trim().toLowerCase(); if(!email.includes('@')){ $('#email').focus(); err('Type your email first. · Escribe tu correo primero.'); return false; } return true; };
+ const toCode=msg=>{ $('#stepEmail').hidden=true; $('#stepCode').hidden=false; $('#codeMsg').textContent=msg; $('#code').value=''; $('#code').focus(); };
  $('#sendCode').onclick=async()=>{
-  email=$('#email').value.trim().toLowerCase(); if(!email.includes('@')) return $('#email').focus();
-  const b=$('#sendCode'); b.disabled=true;
+  if(busy||!readEmail()) return; err('');
+  const b=$('#sendCode'); busy=true; b.disabled=true; b.textContent='Sending… · Enviando…';
   const {error}=await sb.auth.signInWithOtp({email, options:{emailRedirectTo:location.origin+location.pathname}});
-  b.disabled=false;
-  if(error){ $('#codeMsg').textContent=error.message; return toast(error.message); }
-  $('#stepEmail').hidden=true; $('#stepCode').hidden=false;
-  $('#codeMsg').textContent='Code sent to '+email+' · Código enviado a '+email; $('#code').focus();
+  busy=false; b.disabled=false; b.textContent='Send me a code · Mandar código';
+  if(error){
+   if(error.status===429||/rate limit/i.test(error.message)) return err('Too many codes asked for. Use the code from the newest email you already got (tap “I already have a code”), or wait an hour. · Demasiados códigos. Usa el código del correo más nuevo o espera una hora.');
+   return err(error.message);
+  }
+  toCode('Code sent to '+email+'. Use the NEWEST email: Gmail stacks these together and older codes don’t work. · Usa el correo MÁS NUEVO.');
  };
+ $('#haveCode').onclick=()=>{ if(!readEmail()) return; err(''); toCode('Type the code from the newest email sent to '+email+'. · Escribe el código del correo más nuevo.'); };
  $('#email').onkeydown=e=>{ if(e.key==='Enter') $('#sendCode').click(); };
  $('#verify').onclick=async()=>{
-  const token=$('#code').value.replace(/\D/g,''); if(!token) return;
+  if(busy) return;
+  const token=$('#code').value.replace(/\D/g,''); if(!token){ $('#code').focus(); return; }
+  const b=$('#verify'); busy=true; b.disabled=true; b.textContent='Checking… · Revisando…'; err('');
   const {error}=await sb.auth.verifyOtp({email, token, type:'email'});
-  if(error){ $('#codeMsg').textContent='That code didn’t work. · Ese código no funcionó.'; return; }
+  if(error){
+   busy=false; b.disabled=false; b.textContent='Sign in · Entrar';
+   return err('That code didn’t work. Open the NEWEST email (Gmail stacks them — scroll to the bottom of the thread) and type that code. Codes last one hour. · Ese código no funcionó. Usa el correo más nuevo.');
+  }
+  b.textContent='Signed in · Adentro';
   location.reload();
  };
- $('#code').onkeydown=e=>{ if(e.key==='Enter') $('#verify').click(); };
- $('#otherEmail').onclick=()=>{ $('#stepEmail').hidden=false; $('#stepCode').hidden=true; };
+ $('#code').onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#verify').click(); } };
+ $('#otherEmail').onclick=()=>{ err(''); $('#stepEmail').hidden=false; $('#stepCode').hidden=true; };
 }
 $('#gateOut').addEventListener('click',async()=>{ if(sb) await sb.auth.signOut(); localStorage.removeItem(LKEY); location.reload(); });
 
