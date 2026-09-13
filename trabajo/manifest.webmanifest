@@ -1,0 +1,10 @@
+{
+  "name": "Encino Solo · Trabajo",
+  "short_name": "Trabajo",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eceee5",
+  "theme_color": "#2e5c45",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

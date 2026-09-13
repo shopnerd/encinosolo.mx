@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Encino Solo Work List</title>
+<meta name="theme-color" content="#2e5c45">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+:root{
+  --ground:#eceee5; --surface:#f8f9f3; --raised:#ffffff; --ink:#1d251f; --muted:#5a655c; --line:#d6dace; --line2:#b9bfb0;
+  --accent:#2e5c45; --accent-ink:#ffffff; --accent-soft:#dde8df;
+  --sun:#b87c0c; --sun-soft:#f6ead0; --late:#ad3726; --late-soft:#f5dfd9; --ok:#3b7a4b;
+  --fence:#7b5a3a; --water:#2b6c92; --elec:#8c6a00; --plumb:#58609c; --propane:#a24f7a; --gas:#b4501c; --diesel:#4f5a2a;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#121612; --surface:#1a1f1b; --raised:#222822; --ink:#e5e9de; --muted:#9ba596; --line:#2d342d; --line2:#46503f;
+  --accent:#86bd9a; --accent-ink:#0f1a13; --accent-soft:#233429;
+  --sun:#e3ab43; --sun-soft:#3a2f18; --late:#ea7560; --late-soft:#3d221c; --ok:#7fbf8d;
+  --fence:#c49d77; --water:#71b3da; --elec:#d8b94c; --plumb:#a3a8e4; --propane:#de8fb7; --gas:#f08a55; --diesel:#b9c77a;
+}}
+:root[data-theme="dark"]{
+  --ground:#121612; --surface:#1a1f1b; --raised:#222822; --ink:#e5e9de; --muted:#9ba596; --line:#2d342d; --line2:#46503f;
+  --accent:#86bd9a; --accent-ink:#0f1a13; --accent-soft:#233429;
+  --sun:#e3ab43; --sun-soft:#3a2f18; --late:#ea7560; --late-soft:#3d221c; --ok:#7fbf8d;
+  --fence:#c49d77; --water:#71b3da; --elec:#d8b94c; --plumb:#a3a8e4; --propane:#de8fb7; --gas:#f08a55; --diesel:#b9c77a;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.45 var(--body);margin:0;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 120px}
+
+/* header */
+.top{position:sticky;top:0;z-index:5;background:var(--ground);border-bottom:1px solid var(--line)}
+.top .wrap{padding-bottom:0}
+.bar1{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:14px}
+.brand small{display:block;font:700 11px/1 var(--display);font-stretch:125%;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.brand h1{margin:4px 0 0;font:800 26px/1 var(--display);font-stretch:88%;letter-spacing:-.01em}
+.sync{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:6px 12px 6px 10px;font-size:13px;white-space:nowrap}
+.sync i{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:none}
+.sync.off i{background:var(--sun)}
+.sync.off{background:var(--sun-soft);border-color:var(--sun)}
+.viewer{display:flex;align-items:center;gap:8px;margin:12px 0 10px;overflow-x:auto;scrollbar-width:none}
+.viewer span{font-size:13px;color:var(--muted);white-space:nowrap}
+.chip{border:1px solid var(--line2);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:14px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -4px}
+.tabs button{border:0;background:none;padding:10px 10px 12px;font:700 13px/1 var(--display);font-stretch:112%;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+.mock{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:12px 0 0}
+.mock button{background:none;border:0;text-decoration:underline;color:var(--muted);padding:0;font-size:13px}
+
+/* sections + lists */
+h2.sec{display:flex;align-items:baseline;gap:8px;margin:26px 0 8px;font:700 12px/1 var(--display);font-stretch:118%;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h2.sec b{font-variant-numeric:tabular-nums;color:var(--ink)}
+h2.sec.late{color:var(--late)}
+h2.sec.today{color:var(--sun)}
+.list{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item{display:grid;grid-template-columns:52px 1fr auto;align-items:center;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.check{align-self:stretch;border:0;background:none;display:grid;place-items:center}
+.check span{width:28px;height:28px;border-radius:50%;border:2px solid var(--line2);display:grid;place-items:center;transition:background .15s,border-color .15s}
+.check svg{width:16px;height:16px;opacity:0}
+.item.is-done .check span{background:var(--accent);border-color:var(--accent)}
+.item.is-done .check svg{opacity:1;color:var(--accent-ink)}
+.item.is-done .title{text-decoration:line-through;color:var(--muted)}
+.open{border:0;background:none;text-align:left;padding:12px 12px 12px 0;min-width:0}
+.title{display:block;font-weight:700;text-wrap:pretty}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:3px;font-size:13.5px;color:var(--muted)}
+.meta .due{font-variant-numeric:tabular-nums}
+.meta .due.late{color:var(--late);font-weight:700}
+.meta .due.today{color:var(--sun);font-weight:700}
+.sys{display:inline-flex;align-items:center;gap:5px}
+.sys::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c)}
+.rep{white-space:nowrap}
+.tag{font-style:italic;font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+.thumb{width:48px;height:48px;object-fit:cover;border-radius:6px;margin-right:10px}
+.empty{padding:18px;color:var(--muted);background:var(--surface);border:1px dashed var(--line2);border-radius:var(--r)}
+
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:18px}
+.wa{display:inline-flex;align-items:center;gap:8px;background:#1f7a4d;color:#fff;text-decoration:none;border-radius:999px;padding:9px 16px;font-weight:700;font-size:15px}
+.wa[aria-disabled="true"]{background:var(--line);color:var(--muted);pointer-events:none}
+.wa svg{width:18px;height:18px}
+.hint{font-size:13px;color:var(--muted)}
+
+/* places + systems */
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:18px;font-size:14px}
+.crumbs button{border:0;background:none;padding:0;color:var(--accent);text-decoration:underline}
+.pl{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;width:100%;border:0;border-top:1px solid var(--line);background:none;text-align:left;padding:13px 14px}
+.list > li:first-child .pl{border-top:0}
+.pl strong{display:block}
+.pl small{color:var(--muted);font-size:13px}
+.count{font-variant-numeric:tabular-nums;font-size:14px;color:var(--muted);min-width:2ch;text-align:right}
+.badge{font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--late-soft);color:var(--late);white-space:nowrap}
+.pl .arrow{color:var(--muted)}
+.subplaces{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.grp{margin:18px 0 6px;font-weight:700;font-size:15px}
+.systems{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.systile{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px;text-align:left;display:grid;gap:6px}
+.systile[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c)}
+.systile strong{font:800 20px/1.05 var(--display);font-stretch:92%;display:flex;align-items:center;gap:8px}
+.systile strong::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--c)}
+.systile small{color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums}
+
+/* goals */
+.goal{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-top:14px;overflow:hidden}
+.goal header{padding:14px 14px 12px;display:grid;gap:8px}
+.goal h3{margin:0;font:800 21px/1.1 var(--display);font-stretch:92%;text-wrap:balance}
+.goal .gm{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--muted)}
+.prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent)}
+.goal .list{border:0;border-top:1px solid var(--line);border-radius:0}
+.goal footer{border-top:1px solid var(--line);padding:8px 14px;display:flex;gap:14px}
+.link{border:0;background:none;color:var(--accent);font-weight:700;padding:6px 0;font-size:14px}
+
+/* routines */
+.steps{margin:4px 0 0;padding-left:20px;font-size:14px;color:var(--muted)}
+
+/* people */
+.person{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid var(--line)}
+.list > .person:first-child{border-top:0}
+.person strong{display:block}
+.role{font-size:12px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:1px}
+.role.volunteer,.role.cleaning{background:var(--sun-soft);color:var(--sun)}
+.person .acts{display:flex;gap:6px}
+.btn{border:1px solid var(--line2);background:var(--raised);border-radius:8px;padding:7px 12px;font-size:14px}
+.btn.danger{color:var(--late);border-color:var(--late)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.addperson{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;margin-top:12px}
+.addperson input,.addperson select{border:1px solid var(--line2);background:var(--raised);border-radius:8px;padding:8px 10px;min-width:0}
+
+/* animals */
+.animal{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid var(--line)}
+.list > .animal:first-child{border-top:0}
+.animal input,.animal select,.addanimal input,.addanimal select{border:1px solid transparent;background:transparent;border-radius:6px;padding:6px 8px;min-width:0;width:100%}
+.animal input{font-weight:700;font-size:16px}
+.animal input:hover,.animal select:hover,.animal input:focus,.animal select:focus{border-color:var(--line2);background:var(--raised)}
+.animal .n{font-size:13px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.addanimal{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:12px}
+.addanimal input,.addanimal select{border-color:var(--line2);background:var(--raised)}
+@media (max-width:560px){.animal{grid-template-columns:1fr 1fr}}
+
+/* fab */
+.fab{position:fixed;right:max(16px,calc(50% - 364px));bottom:20px;z-index:6;border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);font:800 16px/1 var(--display);font-stretch:108%;letter-spacing:.02em;padding:16px 22px;box-shadow:0 6px 18px rgba(20,30,20,.25)}
+
+/* editor */
+dialog{border:0;padding:0;border-radius:14px;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 20px));max-height:calc(100dvh - 24px)}
+dialog::backdrop{background:rgba(10,15,10,.45)}
+.ed{display:grid;gap:14px;padding:18px}
+.ed h3{margin:0;font:800 22px/1 var(--display);font-stretch:92%}
+.ed label{display:grid;gap:5px;font-size:13px;color:var(--muted);font-weight:700}
+.ed input[type=text],.ed input[type=date],.ed select,.ed textarea{border:1px solid var(--line2);background:var(--raised);border-radius:8px;padding:9px 10px;font-weight:400;color:var(--ink);font-size:16px;width:100%}
+.ed textarea{min-height:84px;resize:vertical}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.seg{display:flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--raised);padding:9px 6px;font-size:14px}
+.seg button+button{border-left:1px solid var(--line2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--ground);font-weight:700}
+.whos{display:flex;flex-wrap:wrap;gap:6px}
+.photo img{width:100%;max-height:220px;object-fit:cover;border-radius:8px}
+.edfoot{display:flex;justify-content:space-between;gap:8px;position:sticky;bottom:0;background:var(--surface);padding:12px 18px;border-top:1px solid var(--line)}
+.readsteps{margin:0;padding-left:22px;display:grid;gap:4px}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:20;background:var(--ink);color:var(--ground);border-radius:10px;padding:10px 14px;display:flex;gap:14px;align-items:center;font-size:15px;max-width:calc(100vw - 24px)}
+.toast button{border:0;background:none;color:var(--ground);font-weight:700;text-decoration:underline;padding:0}
+
+/* simple (crew) mode */
+body.simple .title{font-size:19px}
+body.simple .check{}
+body.simple .check span{width:36px;height:36px}
+body.simple .item{grid-template-columns:62px 1fr auto}
+body.simple .open{padding:16px 12px 16px 0}
+@media (min-width:760px){ .brand h1{font-size:32px} .systems{grid-template-columns:repeat(4,minmax(0,1fr))} }
+@media (max-width:520px){ .addperson{grid-template-columns:1fr 1fr} .addperson input{grid-column:1/-1} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+[hidden]{display:none!important}
+.gate{max-width:440px;margin:0 auto;padding:12vh 20px 40px;display:grid;gap:18px}
+.gate .brand h1{font-size:30px}
+.gate .es{font-weight:500;color:var(--muted)}
+.gp{margin:0;color:var(--muted);text-wrap:pretty}
+.gstep{display:grid;gap:10px}
+.gate input{border:1px solid var(--line2);background:var(--raised);border-radius:10px;padding:12px 14px;font-size:18px;width:100%}
+.btn.big{padding:13px 16px;font-size:16px}
+.person{grid-template-columns:minmax(0,1fr) auto;align-items:start}
+.person .acts{flex-wrap:wrap;justify-content:flex-end}
+.pedit{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pedit select,.pedit input{border:1px solid var(--line2);background:var(--raised);border-radius:6px;padding:5px 8px;font-size:14px;min-width:0}
+.pedit input{width:11em}
+.addperson{grid-template-columns:repeat(3,minmax(0,1fr))}
+.addperson input[name=name]{grid-column:1/-1}
+@media (max-width:560px){.person{grid-template-columns:1fr}.person .acts{justify-content:flex-start}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<section class="gate" id="gate" hidden>
+  <div class="brand"><small>Encino Solo · Baja</small><h1>Work list <span class="es">· Lista de trabajo</span></h1></div>
+  <div id="gateLogin" hidden>
+    <p class="gp">Sign in with your email. We'll send you a code.<br><span class="es">Entra con tu correo. Te mandamos un código.</span></p>
+    <div class="gstep" id="stepEmail">
+      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="your@email.com">
+      <button class="btn primary big" id="sendCode" type="button">Send me a code · Mandar código</button>
+    </div>
+    <div class="gstep" id="stepCode" hidden>
+      <p class="gp" id="codeMsg"></p>
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" maxlength="10">
+      <button class="btn primary big" id="verify" type="button">Sign in · Entrar</button>
+      <button class="link" id="otherEmail" type="button">Use a different email · Otro correo</button>
+    </div>
+    <p class="gp es">¿Trabajas en el rancho y no tienes correo? Pídele a Walker tu enlace por WhatsApp.</p>
+  </div>
+  <div id="gateMsg" hidden><p class="gp" id="gateText"></p><button class="btn" id="gateOut" type="button">Sign out · Salir</button></div>
+</section>
+
+<div id="app" hidden>
+<header class="top">
+  <div class="wrap">
+    <div class="bar1">
+      <div class="brand"><small>Encino Solo · Baja</small><h1 id="h1">Work list</h1></div>
+      <button class="sync" id="sync" type="button"><i></i><span></span></button>
+    </div>
+    <div class="viewer" id="viewer"></div>
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+  </div>
+</header>
+<main class="wrap">
+  <div class="mock" id="mock"></div>
+  <div id="view"></div>
+</main>
+<button class="fab" id="fab" type="button">+ Add</button>
+</div>
+<dialog id="dlg"></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+'use strict';
+const DEMO = /[?&]demo\b/.test(location.search);
+const SUPABASE_URL = 'https://xgivwdptzxvgybrfucjv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnaXZ3ZHB0enh2Z3licmZ1Y2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMzEyNDQsImV4cCI6MjEwNDkwNzI0NH0.fxtkUCKtfG9cWH5nZwNMxNDgbSN79vk2Hx6Ncw9nnqc'; // public anon key; privacy comes from row-level security
+const LKEY = DEMO ? 'encino-work-demo-v4' : 'encino-work-v1';
+
+const T0 = new Date(); T0.setHours(0,0,0,0);
+const iso = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const add = n => { const d = new Date(T0); d.setDate(d.getDate()+n); return iso(d); };
+const parse = s => { const p = s.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); };
+const diff = s => Math.round((parse(s)-T0)/864e5);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid = p => p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const $ = s => document.querySelector(s);
+const ts = s => s ? Date.parse(String(s).replace(/(\.\d{3})\d+/, '$1')) : 0;
+
+const STR = {
+ en:{title:'Work list',today:'Today',places:'Places',animals:'Animals',systems:'Systems',routines:'Routines',goals:'Goals',people:'People',
+  late:'Late',dueToday:'Today',week:'This week',later:'Later',anytime:'Anytime',doneToday:'Done today',everyone:'Everyone',viewing:'Viewing as',
+  add:'+ Add',report:'+ Report a problem',wa:'Send on WhatsApp',waPick:'Pick a person above to send their list',
+  saved:'All saved',syncing:'Saving…',waiting:n=>n+' waiting to send',offline:n=>n?'No signal · '+n+' waiting':'No signal · saved on this phone',synced:n=>n+' change'+(n==1?'':'s')+' sent',
+  online:'On Starlink · saved',offlineDemo:n=>'Out of range · '+n+' waiting',
+  mock:'Demo · example tasks, saved only on this device',reset:'Reset examples',
+  tomorrow:'Tomorrow',daysLate:n=>n==1?'1 day late':n+' days late',
+  every:{1:'Daily',2:'Every 2 days',7:'Weekly',14:'Every 2 weeks',30:'Monthly',42:'Every 6 weeks'},
+  ranchOwned:'Ours',ownedBy:n=>n+"'s",home:'Lives in',noHome:'Roams',addAnimal:'Add animal',renameHint:'Tap a name to change it.',
+  species:{horse:'Horses',goat:'Goats',pig:'Pig',dog:'Dogs',cat:'Cats',other:'Other animals'},sp1:{horse:'Horse',goat:'Goat',pig:'Pig',dog:'Dog',cat:'Cat',other:'Other'},
+  task:'Task',routine:'Routine',goal:'Goal',ranch:'Whole ranch',lateN:n=>n+' late',
+  done:'Done',nextDue:d=>'Done · next one '+d,undo:'Undo',
+  what:'What needs doing',place:'Where',system:'System',none:'None',who:'Who',due:'Due',repeat:'Repeats',
+  steps:'Steps, one per line',stepsEs:'Pasos (español)',goalOf:'Part of a goal',photo:'Photo',addPhoto:'Add photo',save:'Save',cancel:'Cancel',close:'Close',del:'Delete',sure:'Tap again to delete',
+  newItem:'New',edit:'Edit',untranslated:'not yet translated',addTaskGoal:'+ Task for this goal',progress:(a,b)=>a+' of '+b+' done',
+  addPerson:'Add person',name:'Name',phone:'WhatsApp number',email:'Email (family only)',crew:'crew',family:'family',volunteer:'volunteer',cleaning:'cleaning',
+  viewAs:'View as',remove:'Remove',removed:n=>n+' removed · their tasks are unassigned',
+  openTasks:n=>n+' open',seeAll:'See the whole ranch',seeMine:'Back to my list',mine:'My list',nothing:'Nothing here yet.',allClear:'All clear for today.',
+  kinds:{building:'Building',trailer:'Trailer',animals:'Animals',area:'Area',room:'Room',vehicle:'Vehicle'},
+  waHello:n=>'Morning '+n+'. Today at Encino Solo:',waLate:'late',waBye:'Reply "done" or check it off in the list. Thanks!',
+  addPlace:'+ Add a place',addPlaceIn:n=>'+ Add a place inside '+n,editPlace:'Edit this place',placeName:'Name',kind:'Kind',inside:'Inside',top:'Top level',
+  invite:'Invite link',inviteTitle:n=>'Invite link for '+n,inviteHelp:'Send this link to their phone. Opening it signs that phone in as them — no email needed. Anyone with the link can get in, so send it only to them.',
+  copy:'Copy link',copied:'Link copied',sendWa:'Send on WhatsApp',phones:n=>n==1?'1 phone linked':n+' phones linked',unlink:'Unlink phones',unlinked:'Phones unlinked',
+  needOnline:'Needs signal. Try again near the house.',signOut:'Sign out',signedIn:n=>'Signed in as '+n,
+  loading:'Loading the ranch…',welcome:n=>'Welcome, '+n,errSave:'Couldn’t save to the server. Your changes are kept on this phone.',noAccess:'This phone no longer has access. Ask Walker for a new link.',
+  inviteMsg:(n,l)=>'Hi '+n+', this is your Encino Solo work list. Open it on your phone and add it to your home screen: '+l},
+ es:{title:'Lista de trabajo',today:'Hoy',places:'Lugares',animals:'Animales',systems:'Sistemas',routines:'Rutinas',goals:'Metas',people:'Gente',
+  late:'Atrasado',dueToday:'Hoy',week:'Esta semana',later:'Después',anytime:'Cuando se pueda',doneToday:'Hecho hoy',everyone:'Todos',viewing:'Viendo como',
+  add:'+ Agregar',report:'+ Avisar de un problema',wa:'Mandar por WhatsApp',waPick:'Escoge a una persona arriba para mandar su lista',
+  saved:'Todo guardado',syncing:'Guardando…',waiting:n=>n+' por enviar',offline:n=>n?'Sin señal · '+n+' por enviar':'Sin señal · guardado en el teléfono',synced:n=>n+' cambio'+(n==1?'':'s')+' enviado'+(n==1?'':'s'),
+  online:'Con Starlink · guardado',offlineDemo:n=>'Sin señal · '+n+' pendiente'+(n==1?'':'s'),
+  mock:'Demo · tareas de ejemplo, guardadas solo en este aparato',reset:'Reiniciar ejemplos',
+  tomorrow:'Mañana',daysLate:n=>n==1?'1 día tarde':n+' días tarde',
+  every:{1:'Diario',2:'Cada 2 días',7:'Cada semana',14:'Cada 2 semanas',30:'Cada mes',42:'Cada 6 semanas'},
+  ranchOwned:'Del rancho',ownedBy:n=>'De '+n,home:'Vive en',noHome:'Anda suelto',addAnimal:'Agregar animal',renameHint:'Toca un nombre para cambiarlo.',
+  species:{horse:'Caballos',goat:'Chivas',pig:'Cerdo',dog:'Perros',cat:'Gatos',other:'Otros animales'},sp1:{horse:'Caballo',goat:'Chiva',pig:'Cerdo',dog:'Perro',cat:'Gato',other:'Otro'},
+  task:'Tarea',routine:'Rutina',goal:'Meta',ranch:'Todo el rancho',lateN:n=>n+' atrasado'+(n==1?'':'s'),
+  done:'Hecho',nextDue:d=>'Hecho · la próxima '+d,undo:'Deshacer',
+  what:'Qué hay que hacer',place:'Dónde',system:'Sistema',none:'Ninguno',who:'Quién',due:'Para cuándo',repeat:'Se repite',
+  steps:'Pasos, uno por línea',stepsEs:'Pasos (español)',goalOf:'Parte de una meta',photo:'Foto',addPhoto:'Tomar foto',save:'Guardar',cancel:'Cancelar',close:'Cerrar',del:'Borrar',sure:'Toca otra vez para borrar',
+  newItem:'Nuevo',edit:'Editar',untranslated:'sin traducir',addTaskGoal:'+ Tarea para esta meta',progress:(a,b)=>a+' de '+b+' hechas',
+  addPerson:'Agregar persona',name:'Nombre',phone:'Número de WhatsApp',email:'Correo (solo familia)',crew:'equipo',family:'familia',volunteer:'voluntario',cleaning:'limpieza',
+  viewAs:'Ver como',remove:'Quitar',removed:n=>'Se quitó a '+n+' · sus tareas quedan sin asignar',
+  openTasks:n=>n+' pendientes',seeAll:'Ver todo el rancho',seeMine:'Volver a mi lista',mine:'Mi lista',nothing:'Nada aquí todavía.',allClear:'Todo listo por hoy.',
+  kinds:{building:'Edificio',trailer:'Tráiler',animals:'Animales',area:'Área',room:'Cuarto',vehicle:'Vehículo'},
+  waHello:n=>'Buenos días '+n+'. Hoy en Encino Solo:',waLate:'atrasado',waBye:'Contesta "listo" o márcalo en la lista. ¡Gracias!',
+  addPlace:'+ Agregar un lugar',addPlaceIn:n=>'+ Agregar un lugar dentro de '+n,editPlace:'Editar este lugar',placeName:'Nombre',kind:'Tipo',inside:'Dentro de',top:'Nivel principal',
+  invite:'Enlace',inviteTitle:n=>'Enlace para '+n,inviteHelp:'Manda este enlace a su teléfono. Al abrirlo, ese teléfono entra como esa persona, sin correo. Quien tenga el enlace puede entrar: mándalo solo a esa persona.',
+  copy:'Copiar enlace',copied:'Enlace copiado',sendWa:'Mandar por WhatsApp',phones:n=>n==1?'1 teléfono':n+' teléfonos',unlink:'Desconectar teléfonos',unlinked:'Teléfonos desconectados',
+  needOnline:'Necesita señal. Intenta cerca de la casa.',signOut:'Salir',signedIn:n=>'Entraste como '+n,
+  loading:'Cargando el rancho…',welcome:n=>'Bienvenido, '+n,errSave:'No se pudo guardar en el servidor. Tus cambios siguen en este teléfono.',noAccess:'Este teléfono ya no tiene acceso. Pídele a Walker un enlace nuevo.',
+  inviteMsg:(n,l)=>'Hola '+n+', esta es tu lista de trabajo de Encino Solo. Ábrela en tu teléfono y agrégala a la pantalla de inicio: '+l}
+};
+
+const SYS = [{id:'fence',en:'Fencing',es:'Cercas'},{id:'water',en:'Water',es:'Agua'},{id:'elec',en:'Electrical',es:'Electricidad'},{id:'plumb',en:'Plumbing',es:'Plomería'},{id:'propane',en:'Propane',es:'Gas LP'},{id:'gas',en:'Gasoline',es:'Gasolina'},{id:'diesel',en:'Diesel',es:'Diésel'}];
+const SPECIES = ['horse','goat','pig','dog','cat','other'];
+const PLACE_KINDS = ['building','room','trailer','animals','area','vehicle'];
+
+/* ---------- record <-> database row ---------- */
+const KINDS = {
+ helpers:{table:'work_helpers',
+  to:h=>({id:h.id,name:h.name,lang:h.lang,role:h.role,email:h.email||null,phone:h.phone||null}),
+  from:r=>({id:r.id,name:r.name,lang:r.lang,role:r.role,email:r.email,phone:r.phone})},
+ places:{table:'work_places',
+  to:p=>({id:p.id,parent_id:p.parent||null,kind:p.kind,name_en:p.en||'',name_es:p.es||'',sort:p.sort||0}),
+  from:r=>({id:r.id,parent:r.parent_id,kind:r.kind,en:r.name_en,es:r.name_es,sort:r.sort})},
+ animals:{table:'work_animals',
+  to:a=>({id:a.id,species:a.sp,name:a.name,owner:a.owner||'ranch',home_place_id:a.home||null,notes:a.notes||null}),
+  from:r=>({id:r.id,sp:r.species,name:r.name,owner:r.owner,home:r.home_place_id,notes:r.notes})},
+ items:{table:'work_items',
+  to:it=>({id:it.id,type:it.type,title_en:it.en||'',title_es:it.es||'',place_id:it.place||null,system:it.system||null,who:it.who||[],animals:it.animals||[],
+   due:it.due||null,every:it.every||null,steps:it.steps||[],goal_id:it.goal||null,done:!!it.done,done_at:it.doneAt||null,last_done:it.lastDone||null,photo_path:it.photo_path||null,notes:it.notes||null}),
+  from:r=>({id:r.id,type:r.type,en:r.title_en,es:r.title_es,place:r.place_id,system:r.system,who:r.who||[],animals:r.animals||[],due:r.due,every:r.every,
+   steps:r.steps||[],goal:r.goal_id,done:r.done,doneAt:r.done_at,lastDone:r.last_done,photo_path:r.photo_path,notes:r.notes})}
+};
+const TABLE_KIND = Object.fromEntries(Object.entries(KINDS).map(([k,v])=>[v.table,k]));
+
+/* ---------- demo data (?demo) ---------- */
+function seed(){
+ const P=(id,en,es,kind,parent)=>({id,en,es,kind,parent:parent||null});
+ const places=[
+  P('house','Main house','Casa principal','building'),
+   P('bedroom','Bedroom','Recámara','room','house'),P('middle','Middle room','Cuarto de en medio','room','house'),
+   P('kitchen','Kitchen','Cocina','room','house'),P('bath','Bathroom','Baño','room','house'),
+   P('tower','Tower bedroom (over the bathroom)','Recámara de la torre','room','house'),
+   P('lookout','Lookout room (top of the tower)','Mirador (arriba de la torre)','room','house'),
+  P('garage','Garage','Garaje','building'),P('roofdeck','Roof deck','Terraza del techo','area','garage'),
+  P('af1','Airfloat 1956 · rental','Airfloat 1956 · renta','trailer'),P('af2','Airfloat 1956 · second','Airfloat 1956 · segundo','trailer'),
+  P('corrals','Corrals','Corrales','animals'),P('c1','Corral 1','Corral 1','animals','corrals'),P('c2','Corral 2','Corral 2','animals','corrals'),P('c3','Corral 3','Corral 3','animals','corrals'),
+   P('roundpen','Round pen','Corral redondo','animals','corrals'),
+  P('goats','Goat pens','Corrales de chivas','animals'),
+  P('pasture','Front pasture','Potrero de enfrente','area'),P('feeder','Front feeder (alfalfa)','Comedero de alfalfa','area','pasture'),
+  P('garden','Garden','Huerta','area'),
+  P('vehicles','Vehicles','Vehículos','vehicle'),
+   P('f250','1986 Ford F-250 · 4×4 · gasoline','Ford F-250 1986 · 4×4 · gasolina','vehicle','vehicles'),
+   P('vanagon','1987 VW Vanagon Syncro · 4×4','VW Vanagon Syncro 1987 · 4×4','vehicle','vehicles'),
+   P('passat','2006 VW Passat wagon · diesel · not running','VW Passat 2006 · diésel · no funciona','vehicle','vehicles'),
+   P('jetta',"Walker's 2011 VW Jetta SportWagen · diesel",'VW Jetta SportWagen 2011 de Walker · diésel','vehicle','vehicles'),
+   P('htrailer','Horse trailer','Remolque de caballos','vehicle','vehicles')];
+ places.forEach((p,i)=>p.sort=i);
+ const H='h-walker',W='h-will',J='h-jc',V='h-liszt',Z='h-zoila';
+ const helpers=[{id:H,name:'Walker',lang:'en',role:'family'},{id:W,name:'Will',lang:'en',role:'family'},{id:J,name:'Juan Carlos',lang:'es',role:'crew'},{id:V,name:'Liszt',lang:'es',role:'volunteer'},{id:Z,name:'Zoila',lang:'es',role:'cleaning'}];
+ const A=(id,sp,name,owner,home)=>({id,sp,name,owner:owner||'ranch',home:home||null});
+ const animals=[A('a-h1','horse','Lady','ranch','corrals'),A('a-h2','horse','Haru','ranch','corrals'),A('a-h3','horse','Sky','ranch','corrals'),A('a-h4','horse','Honey','ranch','corrals'),A('a-h5','horse','Mundi','ranch','corrals'),A('a-h6','horse','Horse 6 (name?)','ranch','corrals'),
+  A('a-g1','goat','Goat 1',J,'goats'),A('a-g2','goat','Goat 2',J,'goats'),A('a-g3','goat','Goat 3',J,'goats'),A('a-g4','goat','Goat 4',J,'goats'),A('a-barb','pig','Barb','ranch',null),
+  A('a-d1','dog','Critter','ranch','house'),A('a-d2','dog','Bully','ranch','house'),A('a-d3','dog','Juno','ranch','house'),A('a-d4','dog','Loretta','ranch','house'),
+  A('a-c1','cat','Ice Age','ranch','house'),A('a-c2','cat','Muji','ranch','house')];
+ const st=pairs=>pairs.map(p=>({en:p[0],es:p[1]}));
+ const items=[
+  {id:'r1',type:'routine',en:'Fill the front feeder with alfalfa',es:'Llenar el comedero de enfrente con alfalfa',place:'feeder',who:[J],every:1,due:add(0),steps:st([['Check the bales for mold','Revisar que las pacas no tengan moho'],['Fill the feeder','Llenar el comedero']])},
+  {id:'r2',type:'routine',en:'Check troughs and floats in every corral',es:'Revisar bebederos y flotadores en todos los corrales',place:'corrals',system:'water',who:[J],every:1,due:add(0)},
+  {id:'r3',type:'routine',en:'Walk the fence line and fix breaks',es:'Recorrer la cerca y arreglar lo roto',place:'pasture',system:'fence',who:[J],every:7,due:add(-2)},
+  {id:'r8',type:'routine',en:'Feed Barb',es:'Dar de comer a Barb',who:[J],every:1,due:add(0),animals:['a-barb']},
+  {id:'r9',type:'routine',en:'Feed the dogs and cats',es:'Dar de comer a los perros y gatos',place:'house',who:[H],every:1,due:add(0),animals:['a-d1','a-d2','a-d3','a-d4','a-c1','a-c2']},
+  {id:'r12',type:'routine',en:'Read the propane tank gauges',es:'Revisar el medidor de los tanques de gas',place:'house',system:'propane',who:[H],every:7,due:add(3)},
+  {id:'r14',type:'routine',en:'Clean the main house',es:'Limpiar la casa principal',place:'house',who:[Z],every:7,due:add(0)},
+  {id:'g1',type:'goal',en:'Windows for the lookout room',es:'Ventanas para el mirador',place:'lookout',who:[W]},
+  {id:'t1',type:'task',en:'Measure the lookout window openings',es:'Medir los huecos de ventana del mirador',place:'lookout',who:[W],due:add(4),goal:'g1'},
+  {id:'t8',type:'task',en:'Replace the latch on the corral 2 gate',es:'Cambiar el pasador de la puerta del corral 2',place:'c2',system:'fence',who:[J],due:add(0)},
+  {id:'t20',type:'task',en:"Find out why the Passat won't start",es:'Averiguar por qué no arranca el Passat',place:'passat',system:'diesel',who:[W]}
+ ];
+ items.forEach(normItem);
+ return {places,helpers,animals,items,viewer:H};
+}
+function normItem(it){
+ it.system=it.system||null; it.place=it.place||null; it.who=it.who||[]; it.animals=it.animals||[]; it.steps=it.steps||[];
+ it.due=it.due||null; it.every=it.every||null; it.goal=it.goal||null; it.done=!!it.done; it.doneAt=it.doneAt||null; it.lastDone=it.lastDone||null; it.photo_path=it.photo_path||null;
+ return it;
+}
+
+/* ---------- local state ---------- */
+let state = {places:[],helpers:[],animals:[],items:[],viewer:null};
+let meta = freshMeta();
+function freshMeta(){ return {me:null,cursor:{},outbox:{},tombs:{},edited:{},logs:[],photos:{},online:true,pending:0}; }
+const shadow = new Map();   // "kind:id" -> JSON of what the server has (or will have)
+function rebuildShadow(){
+ shadow.clear();
+ for(const k in KINDS) for(const r of state[k]){ const key=k+':'+r.id; if(!meta.outbox[key]) shadow.set(key, JSON.stringify(KINDS[k].to(r))); }
+ for(const key in meta.tombs){ /* pending deletes stay out of the shadow */ }
+}
+function loadLocal(){
+ try{ const saved=JSON.parse(localStorage.getItem(LKEY)); if(saved&&saved.state){ state=saved.state; meta=Object.assign(freshMeta(),saved.meta||{}); } }catch(e){}
+ if(DEMO&&!state.helpers.length){ state=seed(); }
+ rebuildShadow();
+ // records the shadow skipped because they were mid-send still need a baseline to diff against
+ for(const k in KINDS) for(const r of state[k]){ const key=k+':'+r.id; if(!shadow.has(key)) shadow.set(key, JSON.stringify(KINDS[k].to(r))); }
+}
+function saveLocal(){
+ const data={state,meta};
+ try{ localStorage.setItem(LKEY, JSON.stringify(data)); }
+ catch(e){ try{ localStorage.setItem(LKEY, JSON.stringify({state, meta:Object.assign({},meta,{photos:{}})})); }catch(e2){} }
+}
+
+/* commit: diff every record against the shadow, queue what changed */
+function commit(){
+ const now=new Date().toISOString(), seen=new Set();
+ for(const k in KINDS) for(const r of state[k]){
+  const key=k+':'+r.id, j=JSON.stringify(KINDS[k].to(r)); seen.add(key);
+  if(shadow.get(key)!==j){ shadow.set(key,j); meta.edited[key]=now; meta.outbox[key]=1; delete meta.tombs[key]; if(DEMO&&!meta.online)meta.pending++; }
+ }
+ for(const [key,j] of [...shadow]){
+  if(seen.has(key)) continue;
+  shadow.delete(key); const row=JSON.parse(j); row.deleted=true; meta.tombs[key]=row; meta.edited[key]=now; meta.outbox[key]=1; if(DEMO&&!meta.online)meta.pending++;
+ }
+ if(DEMO){ meta.outbox={}; meta.tombs={}; }
+ saveLocal(); renderAll(); schedulePush();
+}
+
+/* ---------- server sync ---------- */
+let sb=null, syncing=false, again=false, lastErr=null, pushTimer=null, noAccess=false;
+const splitKey = key => { const i=key.indexOf(':'); return [key.slice(0,i), key.slice(i+1)]; };
+const myName = () => { const h=helper(meta.me); return h?h.name:null; };
+const pendingCount = () => Object.keys(meta.outbox).length + meta.logs.length + Object.keys(meta.photos).length;
+function schedulePush(){ if(DEMO||!sb)return; clearTimeout(pushTimer); pushTimer=setTimeout(sync, 500); }
+
+async function pushOutbox(){
+ const by={};
+ for(const key of Object.keys(meta.outbox)){
+  const [k,id]=splitKey(key); if(!KINDS[k]){ delete meta.outbox[key]; continue; }
+  const rec=state[k].find(r=>r.id===id);
+  let row = rec ? KINDS[k].to(rec) : meta.tombs[key];
+  if(!row){ delete meta.outbox[key]; continue; }
+  row = Object.assign({}, row, {deleted:!rec, edited_at:meta.edited[key]||new Date().toISOString(), updated_by:myName()});
+  (by[k]=by[k]||[]).push({key,row});
+ }
+ for(const k in by){
+  const {error}=await sb.from(KINDS[k].table).upsert(by[k].map(x=>x.row), {onConflict:'id'});
+  if(error) throw error;
+  for(const x of by[k]) if(meta.edited[x.key]===x.row.edited_at){ delete meta.outbox[x.key]; delete meta.tombs[x.key]; }
+ }
+}
+async function pushLogs(){
+ if(!meta.logs.length) return;
+ const batch=meta.logs.slice();
+ const {error}=await sb.from('work_log').upsert(batch, {onConflict:'id'});
+ if(error) throw error;
+ meta.logs=meta.logs.filter(l=>!batch.includes(l));
+}
+async function pushPhotos(){
+ for(const path of Object.keys(meta.photos)){
+  const blob=await (await fetch(meta.photos[path])).blob();
+  const {error}=await sb.storage.from('work-photos').upload(path, blob, {upsert:true, contentType:'image/jpeg'});
+  if(error) throw error;
+  photoUrls[path]=meta.photos[path]; delete meta.photos[path];
+ }
+}
+function mergeRow(k,row){
+ const key=k+':'+row.id;
+ if(meta.outbox[key]){
+  if(ts(meta.edited[key]) > ts(row.edited_at)) return false;   // ours is newer; it will be sent
+  delete meta.outbox[key]; delete meta.tombs[key];
+ }
+ const arr=state[k], i=arr.findIndex(r=>r.id===row.id);
+ if(row.deleted){ shadow.delete(key); if(i>=0){ arr.splice(i,1); return true; } return false; }
+ const rec=KINDS[k].from(row); if(k==='items') normItem(rec);
+ const j=JSON.stringify(KINDS[k].to(rec));
+ meta.edited[key]=row.edited_at;
+ if(i>=0 && shadow.get(key)===j && JSON.stringify(KINDS[k].to(arr[i]))===j) return false;
+ if(i>=0) arr[i]=rec; else arr.push(rec);
+ shadow.set(key,j);
+ if(k==='places') arr.sort((a,b)=>(a.sort||0)-(b.sort||0));
+ return true;
+}
+async function pull(){
+ let changed=false;
+ for(const k in KINDS){
+  const t=KINDS[k].table; let cur=meta.cursor[t]||'1970-01-01T00:00:00Z';
+  for(;;){
+   const {data,error}=await sb.from(t).select('*').gt('updated_at',cur).order('updated_at').limit(500);
+   if(error) throw error;
+   for(const row of data){ if(mergeRow(k,row)) changed=true; cur=row.updated_at; }
+   meta.cursor[t]=cur;
+   if(data.length<500) break;
+  }
+ }
+ return changed;
+}
+async function sync(){
+ if(DEMO||!sb||!meta.me||noAccess) return;
+ if(syncing){ again=true; return; }
+ syncing=true; updatePill();
+ const before=pendingCount();
+ try{
+  await pushOutbox(); await pushLogs(); await pushPhotos();
+  const changed=await pull();
+  if(before && !pendingCount() && lastErr) toast(s('synced')(before));
+  lastErr=null; saveLocal();
+  if(changed) deferRender();
+ }catch(e){
+  lastErr=e; console.warn('sync', e);
+  if(e && (e.code==='42501' || /row-level security/i.test(e.message||''))){ noAccess=true; showGate(s('noAccess'), true); }
+ }finally{
+  syncing=false; updatePill();
+  if(again){ again=false; schedulePush(); }
+ }
+}
+function subscribe(){
+ let ch=sb.channel('work-live');
+ for(const k in KINDS){
+  ch=ch.on('postgres_changes',{event:'*',schema:'public',table:KINDS[k].table}, p=>{
+   if(p.new && p.new.id && mergeRow(k,p.new)){ saveLocal(); deferRender(); }
+  });
+ }
+ ch.subscribe();
+}
+
+/* ---------- photos ---------- */
+const photoUrls={}, photoAsked=new Set();
+function photoSrc(path){
+ if(!path) return null;
+ if(photoUrls[path]) return photoUrls[path];
+ if(meta.photos[path]) return meta.photos[path];
+ if(!DEMO && sb && !photoAsked.has(path)){
+  photoAsked.add(path);
+  sb.storage.from('work-photos').createSignedUrl(path, 3600).then(({data})=>{ if(data&&data.signedUrl){ photoUrls[path]=data.signedUrl; deferRender(); } });
+ }
+ return null;
+}
+
+/* ---------- helpers for views ---------- */
+let ui={tab:'today',who:'all',place:null,sys:null,full:false};
+const viewer = () => helper(state.viewer) || helper(meta.me) || state.helpers[0] || {name:'',lang:'en',role:'family'};
+const me = () => helper(meta.me) || (DEMO ? viewer() : null);
+const L = () => viewer().lang || 'en';
+const s = k => STR[L()][k];
+const helper = id => state.helpers.find(h=>h.id===id) || null;
+const place = id => state.places.find(p=>p.id===id) || null;
+const item = id => state.items.find(i=>i.id===id) || null;
+const animal = id => state.animals.find(a=>a.id===id) || null;
+const sysOf = id => SYS.find(x=>x.id===id) || null;
+const nm = (o,lang) => { lang=lang||L(); return o ? (o[lang]||o[lang==='en'?'es':'en']||'') : ''; };
+const kids = id => state.places.filter(p=>(p.parent||null)===id);
+const desc = id => [id].concat(...kids(id).map(k=>desc(k.id)));
+const isFamily = () => { const m=me(); return !!m && m.role==='family'; };
+const isSimple = () => viewer().role!=='family' && !ui.full;
+const doneToday = it => (it.type==='task'&&it.done&&it.doneAt===iso(T0)) || (it.type==='routine'&&it.lastDone===iso(T0));
+const openWork = it => it.type!=='goal' && !(it.type==='task'&&it.done);
+
+function dueLabel(d,lang){
+ lang=lang||L(); const n=diff(d), S=STR[lang];
+ if(n<0) return {t:S.daysLate(-n),c:'late'};
+ if(n===0) return {t:S.dueToday,c:'today'};
+ if(n===1) return {t:S.tomorrow,c:''};
+ const dt=parse(d), loc=lang==='es'?'es-MX':'en-US';
+ if(n<7) return {t:dt.toLocaleDateString(loc,{weekday:'long'}),c:''};
+ return {t:dt.toLocaleDateString(loc,{month:'short',day:'numeric'}),c:''};
+}
+
+const CHECK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+const WA='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
+
+function row(it,opts){
+ opts=opts||{};
+ const lang=L(), title=it[lang]||it[lang==='en'?'es':'en'], untr=!it[lang];
+ const p=place(it.place), sy=it.system?sysOf(it.system):null;
+ const who=it.who.map(id=>{const h=helper(id);return h?h.name:null}).filter(Boolean).join(', ');
+ const meta_=[];
+ if(it.due&&!(it.type==='task'&&it.done)){ const d=dueLabel(it.due); meta_.push('<span class="due '+d.c+'">'+esc(d.t)+'</span>'); }
+ if(it.type==='routine') meta_.push('<span class="rep">↻ '+esc(s('every')[it.every]||it.every+'d')+'</span>');
+ if(p&&!opts.noPlace) meta_.push('<span>'+esc(nm(p))+'</span>');
+ if(it.animals.length){ const an=it.animals.map(animal).filter(Boolean), same=an.length&&an.every(a=>a.sp===an[0].sp);
+  if(an.length) meta_.push('<span>'+esc(an.length>2&&same?s('species')[an[0].sp]+' ('+an.length+')':an.map(a=>a.name).join(', '))+'</span>'); }
+ if(sy) meta_.push('<span class="sys" style="--c:var(--'+sy.id+')">'+esc(nm(sy))+'</span>');
+ if(who&&!opts.noWho) meta_.push('<span>'+esc(who)+'</span>');
+ const done=it.type==='task'?it.done:doneToday(it), ph=photoSrc(it.photo_path);
+ return '<li class="item'+(done?' is-done':'')+'" data-id="'+esc(it.id)+'">'+
+  '<button class="check" type="button" data-act="check" aria-label="'+esc(s('done'))+'"><span>'+CHECK+'</span></button>'+
+  '<button class="open" type="button" data-act="edit"><span class="title">'+esc(title)+(untr?'<em class="tag">'+esc(s('untranslated'))+'</em>':'')+'</span><span class="meta">'+meta_.join('')+'</span></button>'+
+  (ph?'<img class="thumb" src="'+esc(ph)+'" alt="">':'<span></span>')+'</li>';
+}
+const list = (items,opts) => items.length ? '<ul class="list">'+items.map(i=>row(i,opts)).join('')+'</ul>' : '<p class="empty">'+esc(s('nothing'))+'</p>';
+const byDue = (a,b) => (a.due||'9999').localeCompare(b.due||'9999');
+
+/* ---------- views ---------- */
+function vToday(){
+ const who=isSimple()?viewer().id:ui.who;
+ const mine=state.items.filter(it=>it.type!=='goal'&&(who==='all'||it.who.includes(who)));
+ const open=mine.filter(it=>openWork(it)&&!doneToday(it)).sort(byDue);
+ const G={late:[],today:[],week:[],later:[],anytime:[]};
+ open.forEach(it=>{ if(!it.due) G.anytime.push(it); else { const n=diff(it.due); if(n<0)G.late.push(it); else if(n===0)G.today.push(it); else if(n<7)G.week.push(it); else G.later.push(it); } });
+ const dn=mine.filter(doneToday);
+ let h='';
+ if(!DEMO && !meta.cursor.work_items && !state.items.length && syncing) h+='<p class="hint" style="margin-top:18px">'+esc(s('loading'))+'</p>';
+ if(!isSimple()){
+  h+='<div class="viewer" style="margin-top:14px">'+['all'].concat(state.helpers.map(x=>x.id)).map(id=>
+   '<button class="chip" type="button" data-who="'+esc(id)+'" aria-pressed="'+(ui.who===id)+'">'+esc(id==='all'?s('everyone'):helper(id).name)+'</button>').join('')+'</div>';
+ }
+ const order=isSimple()?['late','today','week']:['late','today','week','later','anytime'];
+ let any=false;
+ order.forEach(k=>{ if(!G[k].length)return; any=true;
+  h+='<h2 class="sec '+(k==='late'?'late':k==='today'?'today':'')+'">'+esc(s(k==='today'?'dueToday':k))+' <b>'+G[k].length+'</b></h2>'+list(G[k],{noWho:who!=='all'}); });
+ if(!any) h+='<h2 class="sec today">'+esc(s('dueToday'))+'</h2><p class="empty">'+esc(s('allClear'))+'</p>';
+ if(dn.length) h+='<h2 class="sec">'+esc(s('doneToday'))+' <b>'+dn.length+'</b></h2>'+list(dn,{noWho:who!=='all'});
+ const target=who==='all'?null:helper(who);
+ if(target){
+  const TL=target.lang, S=STR[TL], lines=[S.waHello(target.name)];
+  G.late.concat(G.today).forEach(it=>lines.push('☐ '+(it[TL]||it.en)+(it.place?' · '+nm(place(it.place),TL):'')+(diff(it.due)<0?' ('+S.waLate+')':'')));
+  lines.push('',S.waBye);
+  const num=(target.phone||'').replace(/\D/g,'');
+  const href='https://wa.me/'+num+'?text='+encodeURIComponent(lines.join('\n'));
+  h+='<div class="tools"><a class="wa" href="'+esc(href)+'" target="_blank" rel="noopener">'+WA+esc(s('wa'))+'</a></div>';
+ } else h+='<div class="tools"><a class="wa" aria-disabled="true">'+WA+esc(s('wa'))+'</a><span class="hint">'+esc(s('waPick'))+'</span></div>';
+ if(viewer().role!=='family') h+='<div class="tools"><button class="link" type="button" data-act="full">'+esc(ui.full?s('seeMine'):s('seeAll'))+'</button></div>';
+ return h;
+}
+function counts(ids){ let o=0,l=0; state.items.forEach(it=>{ if(ids.includes(it.place)&&openWork(it)&&!doneToday(it)){ o++; if(it.due&&diff(it.due)<0)l++; } }); return [o,l]; }
+function vPlaces(){
+ let h='';
+ if(!ui.place){
+  const tops=kids(null);
+  h+='<h2 class="sec">'+esc(s('ranch'))+'</h2><ul class="list">'+tops.map(p=>{ const c=counts(desc(p.id)), sub=kids(p.id).length;
+   return '<li><button class="pl" type="button" data-place="'+esc(p.id)+'"><span><strong>'+esc(nm(p))+'</strong><small>'+esc(s('kinds')[p.kind]||'')+(sub?' · '+sub:'')+'</small></span>'+
+    (c[1]?'<span class="badge">'+esc(s('lateN')(c[1]))+'</span>':'<span></span>')+'<span class="count">'+c[0]+' ›</span></button></li>'; }).join('')+'</ul>';
+  h+='<div class="tools"><button class="link" type="button" data-act="addplace">'+esc(s('addPlace'))+'</button></div>';
+  return h;
+ }
+ const p=place(ui.place); if(!p){ ui.place=null; return vPlaces(); }
+ const chain=[]; for(let q=p;q;q=place(q.parent)) chain.unshift(q);
+ h+='<div class="crumbs"><button type="button" data-place="">'+esc(s('ranch'))+'</button>'+chain.map((c,i)=>' › '+(i<chain.length-1?'<button type="button" data-place="'+esc(c.id)+'">'+esc(nm(c))+'</button>':'<strong>'+esc(nm(c))+'</strong>')).join('')+'</div>';
+ const ks=kids(p.id);
+ if(ks.length) h+='<div class="subplaces">'+ks.map(k=>'<button class="chip" type="button" data-place="'+esc(k.id)+'">'+esc(nm(k))+' · '+counts(desc(k.id))[0]+'</button>').join('')+'</div>';
+ desc(p.id).forEach((id,i)=>{
+  const its=state.items.filter(it=>it.place===id&&it.type!=='goal'&&(openWork(it)||doneToday(it))).sort(byDue);
+  if(!its.length&&i>0) return;
+  h+=(i===0?'<h2 class="sec">'+esc(nm(place(id)))+' <b>'+its.length+'</b></h2>':'<p class="grp">'+esc(nm(place(id)))+'</p>')+list(its,{noPlace:true});
+ });
+ h+='<div class="tools"><button class="link" type="button" data-act="addplace" data-parent="'+esc(p.id)+'">'+esc(s('addPlaceIn')(nm(p)))+'</button><button class="link" type="button" data-act="editplace" data-pid="'+esc(p.id)+'">'+esc(s('editPlace'))+'</button></div>';
+ return h;
+}
+function vAnimals(){
+ let h='<p class="hint" style="margin:16px 0 0">'+esc(s('renameHint'))+'</p>';
+ SPECIES.forEach(sp=>{
+  const an=state.animals.filter(a=>a.sp===sp); if(!an.length) return;
+  h+='<h2 class="sec">'+esc(s('species')[sp])+' <b>'+an.length+'</b></h2><ul class="list">'+an.map(a=>{
+   const n=state.items.filter(it=>it.animals.includes(a.id)&&openWork(it)&&!doneToday(it)).length;
+   return '<li class="animal" data-aid="'+esc(a.id)+'"><input data-af="name" value="'+esc(a.name)+'" aria-label="'+esc(s('name'))+'">'+
+    '<select data-af="owner" aria-label="owner"><option value="ranch">'+esc(s('ranchOwned'))+'</option>'+state.helpers.map(p=>'<option value="'+esc(p.id)+'"'+(a.owner===p.id?' selected':'')+'>'+esc(s('ownedBy')(p.name))+'</option>').join('')+'</select>'+
+    '<select data-af="home" aria-label="'+esc(s('home'))+'"><option value="">'+esc(s('noHome'))+'</option>'+placeOpts(a.home)+'</select>'+
+    '<span style="display:flex;gap:6px;align-items:center;justify-content:flex-end"><span class="n">'+esc(s('openTasks')(n))+'</span><button class="btn danger" type="button" data-rmanimal="'+esc(a.id)+'">'+esc(armedA===a.id?s('sure'):s('remove'))+'</button></span></li>';
+  }).join('')+'</ul>';
+ });
+ h+='<h2 class="sec">'+esc(s('addAnimal'))+'</h2><form class="addanimal" id="addanimal"><input name="name" placeholder="'+esc(s('name'))+'" required aria-label="'+esc(s('name'))+'"><select name="sp" aria-label="species">'+SPECIES.map(sp=>'<option value="'+sp+'">'+esc(s('sp1')[sp])+'</option>').join('')+'</select><button class="btn primary" type="submit">'+esc(s('addAnimal'))+'</button></form>';
+ return h;
+}
+function vSystems(){
+ let h='<div class="systems">'+SYS.map(sy=>{ let n=0,l=0; state.items.forEach(it=>{ if(it.system===sy.id&&openWork(it)&&!doneToday(it)){ n++; if(it.due&&diff(it.due)<0)l++; } });
+  return '<button class="systile" type="button" data-sys="'+sy.id+'" style="--c:var(--'+sy.id+')" aria-pressed="'+(ui.sys===sy.id)+'"><strong>'+esc(nm(sy))+'</strong><small>'+esc(s('openTasks')(n))+(l?' · '+esc(s('lateN')(l)):'')+'</small></button>'; }).join('')+'</div>';
+ (ui.sys?[sysOf(ui.sys)]:SYS).forEach(sy=>{
+  const its=state.items.filter(it=>it.system===sy.id&&it.type!=='goal'&&openWork(it)).sort(byDue);
+  h+='<h2 class="sec"><span class="sys" style="--c:var(--'+sy.id+')">'+esc(nm(sy))+'</span> <b>'+its.length+'</b></h2>'+list(its);
+ });
+ return h;
+}
+function vRoutines(){
+ let h='';
+ [1,2,7,14,30,42].forEach(ev=>{
+  const its=state.items.filter(it=>it.type==='routine'&&it.every===ev).sort(byDue);
+  if(its.length) h+='<h2 class="sec">'+esc(s('every')[ev])+' <b>'+its.length+'</b></h2>'+list(its);
+ });
+ return h||'<p class="empty" style="margin-top:18px">'+esc(s('nothing'))+'</p>';
+}
+function vGoals(){
+ const goals=state.items.filter(it=>it.type==='goal');
+ if(!goals.length) return '<p class="empty" style="margin-top:18px">'+esc(s('nothing'))+'</p>';
+ return goals.map(g=>{
+  const tsk=state.items.filter(it=>it.goal===g.id).sort((a,b)=>(a.done-b.done)||byDue(a,b));
+  const d=tsk.filter(t=>t.done).length, pct=tsk.length?Math.round(d/tsk.length*100):0;
+  return '<section class="goal"><header><h3>'+esc(nm(g))+'</h3><div class="gm"><span>'+esc(nm(place(g.place)))+'</span><span>'+esc(s('progress')(d,tsk.length))+'</span></div><div class="prog"><i style="width:'+pct+'%"></i></div></header>'+
+   (tsk.length?'<ul class="list">'+tsk.map(t=>row(t,{noPlace:true})).join('')+'</ul>':'')+
+   '<footer><button class="link" type="button" data-act="addgoal" data-goal="'+esc(g.id)+'">'+esc(s('addTaskGoal'))+'</button><button class="link" type="button" data-act="editgoal" data-goal="'+esc(g.id)+'">'+esc(s('edit'))+'</button></footer></section>';
+ }).join('');
+}
+let armed=null, armedA=null, devices=null;
+function loadDevices(){
+ if(DEMO||!sb||!isFamily()) return;
+ sb.from('work_devices').select('helper_id').then(({data})=>{ if(data){ devices={}; data.forEach(d=>devices[d.helper_id]=(devices[d.helper_id]||0)+1); if(ui.tab==='people') deferRender(); } });
+}
+function vPeople(){
+ const fam=isFamily()||DEMO;
+ let h='<h2 class="sec">'+esc(s('people'))+' <b>'+state.helpers.length+'</b></h2><ul class="list">'+state.helpers.map(p=>{
+  const n=state.items.filter(it=>it.who.includes(p.id)&&openWork(it)).length, dv=devices&&devices[p.id];
+  return '<li class="person" data-hid="'+esc(p.id)+'"><div class="pinfo"><strong>'+esc(p.name)+'<span class="role '+esc(p.role)+'">'+esc(s(p.role))+'</span></strong>'+
+   '<small class="hint">'+(p.lang==='es'?'Español':'English')+' · '+esc(s('openTasks')(n))+(dv?' · '+esc(s('phones')(dv)):'')+(p.phone?' · '+esc(p.phone):'')+'</small>'+
+   (fam?'<div class="pedit"><select data-hf="role" aria-label="role">'+['family','crew','volunteer','cleaning'].map(r=>'<option value="'+r+'"'+(p.role===r?' selected':'')+'>'+esc(s(r))+'</option>').join('')+'</select>'+
+    '<select data-hf="lang" aria-label="language"><option value="es"'+(p.lang==='es'?' selected':'')+'>Español</option><option value="en"'+(p.lang==='en'?' selected':'')+'>English</option></select>'+
+    '<input data-hf="phone" type="tel" inputmode="tel" value="'+esc(p.phone||'')+'" placeholder="'+esc(s('phone'))+'" aria-label="'+esc(s('phone'))+'"></div>':'')+
+   '</div><div class="acts"><button class="btn" type="button" data-viewas="'+esc(p.id)+'">'+esc(s('viewAs'))+'</button>'+
+   (fam&&!DEMO&&p.role!=='family'?'<button class="btn" type="button" data-invite="'+esc(p.id)+'">'+esc(s('invite'))+'</button>':'')+
+   (fam&&!DEMO&&dv?'<button class="btn" type="button" data-unlink="'+esc(p.id)+'">'+esc(s('unlink'))+'</button>':'')+
+   (fam&&p.id!==meta.me&&p.id!==state.viewer?'<button class="btn danger" type="button" data-rmperson="'+esc(p.id)+'">'+esc(armed===p.id?s('sure'):s('remove'))+'</button>':'')+'</div></li>';
+ }).join('')+'</ul>';
+ if(fam) h+='<h2 class="sec">'+esc(s('addPerson'))+'</h2><form class="addperson" id="addperson"><input name="name" placeholder="'+esc(s('name'))+'" required aria-label="'+esc(s('name'))+'">'+
+  '<select name="role" aria-label="role"><option value="volunteer">'+esc(s('volunteer'))+'</option><option value="crew">'+esc(s('crew'))+'</option><option value="cleaning">'+esc(s('cleaning'))+'</option><option value="family">'+esc(s('family'))+'</option></select>'+
+  '<select name="lang" aria-label="language"><option value="es">Español</option><option value="en">English</option></select>'+
+  '<input name="phone" type="tel" inputmode="tel" placeholder="'+esc(s('phone'))+'" aria-label="'+esc(s('phone'))+'">'+
+  '<input name="email" type="email" placeholder="'+esc(s('email'))+'" aria-label="'+esc(s('email'))+'">'+
+  '<button class="btn primary" type="submit">'+esc(s('addPerson'))+'</button></form>';
+ if(!DEMO) h+='<div class="tools"><span class="hint">'+esc(s('signedIn')(myName()||''))+'</span><button class="link" type="button" data-act="signout">'+esc(s('signOut'))+'</button></div>';
+ return h;
+}
+
+const TABS=['today','places','animals','systems','routines','goals','people'];
+function renderAll(){
+ pendingRender=false;
+ const simple=isSimple();
+ document.body.classList.toggle('simple',simple);
+ document.documentElement.lang=L();
+ $('#h1').textContent=simple?s('mine'):s('title');
+ updatePill();
+ const showViewer=DEMO||isFamily();
+ $('#viewer').hidden=!showViewer;
+ $('#viewer').innerHTML=showViewer?'<span>'+esc(s('viewing'))+'</span>'+state.helpers.map(p=>'<button class="chip" type="button" data-viewas="'+esc(p.id)+'" aria-pressed="'+(p.id===viewer().id)+'">'+esc(p.name)+'</button>').join(''):'';
+ if(simple) ui.tab='today';
+ $('#tabs').hidden=simple;
+ $('#tabs').innerHTML=TABS.map(t=>'<button type="button" role="tab" data-tab="'+t+'" aria-selected="'+(ui.tab===t)+'">'+esc(s(t))+'</button>').join('');
+ $('#mock').innerHTML=DEMO?'<span>'+esc(s('mock'))+'</span><button type="button" data-act="reset">'+esc(s('reset'))+'</button>':'';
+ $('#mock').hidden=!DEMO;
+ $('#fab').textContent=viewer().role==='family'?s('add'):s('report');
+ $('#view').innerHTML=({today:vToday,places:vPlaces,animals:vAnimals,systems:vSystems,routines:vRoutines,goals:vGoals,people:vPeople})[ui.tab]();
+}
+let pendingRender=false;
+function deferRender(){
+ const a=document.activeElement;
+ if(a && a.closest && a.closest('#view') && /INPUT|SELECT|TEXTAREA/.test(a.tagName)){ pendingRender=true; return; }
+ renderAll();
+}
+document.addEventListener('focusout',()=>{ if(pendingRender) setTimeout(()=>{ if(pendingRender) deferRender(); },0); });
+
+function updatePill(){
+ const sy=$('#sync'); if(!sy) return;
+ const span=sy.querySelector('span');
+ if(DEMO){ sy.classList.toggle('off',!meta.online); span.textContent=meta.online?s('online'):s('offlineDemo')(meta.pending); return; }
+ const n=pendingCount(), off=!navigator.onLine||!!lastErr;
+ sy.classList.toggle('off', off || (n>0 && !syncing));
+ span.textContent = syncing ? s('syncing') : off ? s('offline')(n) : n ? s('waiting')(n) : s('saved');
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg,undoSnap){
+ const t=$('#toast'); t.innerHTML='<span>'+esc(msg)+'</span>'+(undoSnap?'<button type="button" data-act="undo">'+esc(s('undo'))+'</button>':'');
+ t.hidden=false; t._snap=undoSnap||null; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true},4200);
+}
+const snapshot = () => JSON.stringify({places:state.places,helpers:state.helpers,animals:state.animals,items:state.items});
+function restore(snap){ const o=JSON.parse(snap); state.places=o.places; state.helpers=o.helpers; state.animals=o.animals; state.items=o.items; }
+
+/* ---------- editors ---------- */
+let ed=null, edPlace=null;
+function openEditor(it,preset){
+ ed=it?JSON.parse(JSON.stringify(it)):normItem(Object.assign({id:uid('i'),type:'task',en:'',es:'',place:ui.place||null,system:ui.sys||null,who:[],due:iso(T0),steps:[],animals:[],isNew:true},preset||{}));
+ ed.armed=false; edPlace=null; drawEditor();
+ if(!$('#dlg').open) $('#dlg').showModal();
+}
+function placeOpts(sel,skip){
+ let out='';
+ const walk=(pid,depth)=>kids(pid).forEach(p=>{ if(p.id===skip) return; out+='<option value="'+esc(p.id)+'"'+(p.id===sel?' selected':'')+'>'+'   '.repeat(depth)+esc(nm(p))+'</option>'; walk(p.id,depth+1); });
+ walk(null,0); return out;
+}
+function drawEditor(){
+ const fam=viewer().role==='family', lang=L(), e=ed;
+ let h='<form class="ed" id="edform"><h3>'+esc(e.isNew?s('newItem'):s('edit'))+' · '+esc(s(e.type))+'</h3>';
+ if(fam) h+='<div class="seg" role="group">'+['task','routine','goal'].map(t=>'<button type="button" data-etype="'+t+'" aria-pressed="'+(e.type===t)+'">'+esc(s(t))+'</button>').join('')+'</div>';
+ if(fam) h+='<label>'+esc(s('what'))+' · English<input type="text" name="en" value="'+esc(e.en)+'"></label><label>'+esc(s('what'))+' · Español<input type="text" name="es" value="'+esc(e.es)+'"></label>';
+ else h+='<label>'+esc(s('what'))+'<input type="text" name="'+lang+'" value="'+esc(e[lang]||e.en)+'"></label>';
+ h+='<div class="two"><label>'+esc(s('place'))+'<select name="place"><option value="">—</option>'+placeOpts(e.place)+'</select></label><label>'+esc(s('system'))+'<select name="system"><option value="">'+esc(s('none'))+'</option>'+SYS.map(sy=>'<option value="'+sy.id+'"'+(e.system===sy.id?' selected':'')+'>'+esc(nm(sy))+'</option>').join('')+'</select></label></div>';
+ h+='<label>'+esc(s('who'))+'<span class="whos">'+state.helpers.map(p=>'<button class="chip" type="button" data-ewho="'+esc(p.id)+'" aria-pressed="'+e.who.includes(p.id)+'">'+esc(p.name)+'</button>').join('')+'</span></label>';
+ if(e.type!=='goal') h+='<label>'+esc(s('animals'))+'<span class="whos">'+state.animals.map(a=>'<button class="chip" type="button" data-eanimal="'+esc(a.id)+'" aria-pressed="'+e.animals.includes(a.id)+'">'+esc(a.name)+'</button>').join('')+'</span></label>';
+ if(e.type!=='goal'){
+  h+='<div class="two"><label>'+esc(s('due'))+'<input type="date" name="due" value="'+esc(e.due||'')+'"></label>';
+  if(e.type==='routine') h+='<label>'+esc(s('repeat'))+'<select name="every">'+[1,2,7,14,30,42].map(v=>'<option value="'+v+'"'+(e.every===v?' selected':'')+'>'+esc(s('every')[v])+'</option>').join('')+'</select></label>';
+  else h+='<label>'+esc(s('goalOf'))+'<select name="goal"><option value="">'+esc(s('none'))+'</option>'+state.items.filter(g=>g.type==='goal').map(g=>'<option value="'+esc(g.id)+'"'+(e.goal===g.id?' selected':'')+'>'+esc(nm(g))+'</option>').join('')+'</select></label>';
+  h+='</div>';
+ }
+ if(e.type==='routine'){
+  if(fam) h+='<div class="two"><label>'+esc(s('steps'))+'<textarea name="stepsEn">'+esc(e.steps.map(x=>x.en).join('\n'))+'</textarea></label><label>'+esc(s('stepsEs'))+'<textarea name="stepsEs">'+esc(e.steps.map(x=>x.es).join('\n'))+'</textarea></label></div>';
+  else if(e.steps.length) h+='<ol class="readsteps">'+e.steps.map(x=>'<li>'+esc(x[lang]||x.en)+'</li>').join('')+'</ol>';
+ }
+ if(e.type!=='goal'){
+  const src=e.newPhoto||photoSrc(e.photo_path);
+  h+='<div class="photo"><label>'+esc(s('photo'))+'</label>'+(src?'<img src="'+esc(src)+'" alt="">':'')+'<label class="btn" style="display:inline-block;margin-top:6px;color:var(--ink);font-weight:400">'+esc(s('addPhoto'))+'<input type="file" accept="image/*" capture="environment" name="photo" hidden></label></div>';
+ }
+ h+='</form><div class="edfoot">'+(e.isNew?'<span></span>':'<button class="btn danger" type="button" data-act="edel">'+esc(e.armed?s('sure'):s('del'))+'</button>')+
+  '<span style="display:flex;gap:8px"><button class="btn" type="button" data-act="ecancel">'+esc(s('cancel'))+'</button><button class="btn primary" type="button" data-act="esave">'+esc(s('save'))+'</button></span></div>';
+ $('#dlg').innerHTML=h;
+}
+function readForm(){
+ const f=$('#edform'); if(!f||!ed) return; const e=ed, el=f.elements;
+ ['en','es'].forEach(k=>{ if(el[k]) e[k]=el[k].value.trim(); });
+ if(el.place) e.place=el.place.value||null;
+ if(el.system) e.system=el.system.value||null;
+ if(el.due) e.due=el.due.value||null;
+ if(el.every) e.every=Number(el.every.value);
+ if(el.goal) e.goal=el.goal.value||null;
+ if(el.stepsEn){ const a=el.stepsEn.value.split('\n'), b=el.stepsEs.value.split('\n'), out=[];
+  for(let i=0;i<Math.max(a.length,b.length);i++){ const x=(a[i]||'').trim(), y=(b[i]||'').trim(); if(x||y) out.push({en:x,es:y}); } e.steps=out; }
+}
+function openPlaceEditor(p,parent){
+ ed=null;
+ edPlace=p?Object.assign({},p):{id:uid('p'),en:'',es:'',kind:'area',parent:parent||null,sort:state.places.reduce((m,x)=>Math.max(m,x.sort||0),0)+1,isNew:true};
+ edPlace.armed=false; drawPlaceEditor();
+ if(!$('#dlg').open) $('#dlg').showModal();
+}
+function drawPlaceEditor(){
+ const p=edPlace;
+ $('#dlg').innerHTML='<form class="ed" id="plform"><h3>'+esc(p.isNew?s('addPlace').replace('+ ',''):s('editPlace'))+'</h3>'+
+  '<label>'+esc(s('placeName'))+' · English<input type="text" name="en" value="'+esc(p.en)+'"></label>'+
+  '<label>'+esc(s('placeName'))+' · Español<input type="text" name="es" value="'+esc(p.es)+'"></label>'+
+  '<div class="two"><label>'+esc(s('kind'))+'<select name="kind">'+PLACE_KINDS.map(k=>'<option value="'+k+'"'+(p.kind===k?' selected':'')+'>'+esc(s('kinds')[k])+'</option>').join('')+'</select></label>'+
+  '<label>'+esc(s('inside'))+'<select name="parent"><option value="">'+esc(s('top'))+'</option>'+placeOpts(p.parent,p.id)+'</select></label></div></form>'+
+  '<div class="edfoot">'+(p.isNew?'<span></span>':'<button class="btn danger" type="button" data-act="pdel">'+esc(p.armed?s('sure'):s('del'))+'</button>')+
+  '<span style="display:flex;gap:8px"><button class="btn" type="button" data-act="ecancel">'+esc(s('cancel'))+'</button><button class="btn primary" type="button" data-act="psave">'+esc(s('save'))+'</button></span></div>';
+}
+async function openInvite(h){
+ if(!navigator.onLine){ toast(s('needOnline')); return; }
+ const bytes=crypto.getRandomValues(new Uint8Array(18));
+ const token=btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+ const {error}=await sb.from('work_invites').insert({token,helper_id:h.id,created_by:myName()});
+ if(error){ console.warn(error); toast(s('needOnline')); return; }
+ const link=location.origin+location.pathname+'#join='+token;
+ const msg=STR[h.lang].inviteMsg(h.name,link), num=(h.phone||'').replace(/\D/g,'');
+ ed=null; edPlace=null;
+ $('#dlg').innerHTML='<div class="ed"><h3>'+esc(s('inviteTitle')(h.name))+'</h3><p class="hint" style="margin:0">'+esc(s('inviteHelp'))+'</p>'+
+  '<input type="text" readonly value="'+esc(link)+'" id="invLink" style="border:1px solid var(--line2);background:var(--raised);border-radius:8px;padding:9px 10px;width:100%;font-size:14px">'+
+  '<div class="tools" style="margin:0"><a class="wa" href="'+esc('https://wa.me/'+num+'?text='+encodeURIComponent(msg))+'" target="_blank" rel="noopener">'+WA+esc(s('sendWa'))+'</a><button class="btn" type="button" data-act="copylink">'+esc(s('copy'))+'</button></div></div>'+
+  '<div class="edfoot"><span></span><button class="btn" type="button" data-act="ecancel">'+esc(s('close'))+'</button></div>';
+ if(!$('#dlg').open) $('#dlg').showModal();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',async ev=>{
+ const b=ev.target.closest('button,[data-place]'); if(!b||!b.closest('#app,#dlg,#toast')) return;
+ const d=b.dataset;
+ if(d.tab){ ui.tab=d.tab; ui.place=null; renderAll(); window.scrollTo(0,0); if(d.tab==='people') loadDevices(); return; }
+ if(d.viewas){ state.viewer=d.viewas; ui.full=false; ui.who='all'; armed=null; saveLocal(); renderAll(); return; }
+ if(d.who){ ui.who=d.who; renderAll(); return; }
+ if(d.place!==undefined){ ui.place=d.place||null; renderAll(); return; }
+ if(d.sys){ ui.sys=ui.sys===d.sys?null:d.sys; renderAll(); return; }
+ if(d.invite){ openInvite(helper(d.invite)); return; }
+ if(d.unlink){ const {error}=await sb.from('work_devices').delete().eq('helper_id',d.unlink); if(error){ toast(s('needOnline')); return; } toast(s('unlinked')); loadDevices(); return; }
+ if(d.rmperson){
+  if(armed!==d.rmperson){ armed=d.rmperson; renderAll(); return; }
+  const p=helper(d.rmperson), snap=snapshot();
+  state.helpers=state.helpers.filter(x=>x.id!==p.id);
+  state.items.forEach(it=>{ it.who=it.who.filter(w=>w!==p.id); });
+  state.animals.forEach(a=>{ if(a.owner===p.id) a.owner='ranch'; });
+  armed=null; commit(); toast(s('removed')(p.name),snap);
+  if(!DEMO&&sb){ sb.from('work_invites').delete().eq('helper_id',p.id).then(()=>{}); sb.from('work_devices').delete().eq('helper_id',p.id).then(()=>{}); }
+  return;
+ }
+ if(d.rmanimal){
+  if(armedA!==d.rmanimal){ armedA=d.rmanimal; renderAll(); return; }
+  const an=animal(d.rmanimal), snap=snapshot();
+  state.animals=state.animals.filter(x=>x.id!==an.id); state.items.forEach(it=>{ it.animals=it.animals.filter(x=>x!==an.id); });
+  armedA=null; commit(); toast(s('removed')(an.name),snap); return;
+ }
+ if(d.etype){ readForm(); ed.type=d.etype; if(ed.type==='routine'&&!ed.every) ed.every=7; drawEditor(); return; }
+ if(d.ewho){ readForm(); const i=ed.who.indexOf(d.ewho); if(i>=0) ed.who.splice(i,1); else ed.who.push(d.ewho); drawEditor(); return; }
+ if(d.eanimal){ readForm(); const j=ed.animals.indexOf(d.eanimal); if(j>=0) ed.animals.splice(j,1); else ed.animals.push(d.eanimal); drawEditor(); return; }
+ const act=d.act;
+ if(act==='check'){
+  const it=item(b.closest('[data-id]').dataset.id), snap=snapshot(), now=new Date().toISOString();
+  const log=action=>meta.logs.push({id:uid('l'),item_id:it.id,action,helper_id:meta.me||viewer().id,at:now});
+  if(it.type==='task'){ it.done=!it.done; it.doneAt=it.done?iso(T0):null; log(it.done?'done':'undone'); commit(); if(it.done) toast(s('done'),snap); }
+  else if(doneToday(it)){ it.lastDone=null; it.due=iso(T0); log('undone'); commit(); }
+  else { it.lastDone=iso(T0); it.due=add(it.every||1); log('done'); commit(); toast(s('nextDue')(dueLabel(it.due).t.toLowerCase()),snap); }
+  return;
+ }
+ if(act==='edit'){ openEditor(item(b.closest('[data-id]').dataset.id)); return; }
+ if(act==='addgoal'){ const g=item(d.goal); openEditor(null,{goal:g.id,place:g.place}); return; }
+ if(act==='editgoal'){ openEditor(item(d.goal)); return; }
+ if(act==='addplace'){ openPlaceEditor(null,d.parent||null); return; }
+ if(act==='editplace'){ openPlaceEditor(place(d.pid)); return; }
+ if(act==='full'){ ui.full=!ui.full; renderAll(); return; }
+ if(act==='undo'){ const t=$('#toast'); if(t._snap){ restore(t._snap); commit(); } t.hidden=true; return; }
+ if(act==='reset'){ state=seed(); meta=freshMeta(); rebuildShadow(); ui={tab:'today',who:'all',place:null,sys:null,full:false}; saveLocal(); renderAll(); return; }
+ if(act==='signout'){ await sb.auth.signOut(); localStorage.removeItem(LKEY); location.reload(); return; }
+ if(act==='copylink'){ const inp=$('#invLink'); try{ await navigator.clipboard.writeText(inp.value); }catch(e){ inp.select(); document.execCommand('copy'); } toast(s('copied')); return; }
+ if(act==='ecancel'){ $('#dlg').close(); return; }
+ if(act==='edel'){
+  if(!ed.armed){ ed.armed=true; drawEditor(); return; }
+  const snap=snapshot(), id=ed.id;
+  state.items=state.items.filter(x=>x.id!==id); state.items.forEach(x=>{ if(x.goal===id) x.goal=null; });
+  $('#dlg').close(); commit(); toast(s('del'),snap); return;
+ }
+ if(act==='esave'){
+  readForm(); if(!ed.en&&!ed.es){ const inp=$('#edform input[type=text]'); if(inp) inp.focus(); return; }
+  const clean=JSON.parse(JSON.stringify(ed));
+  if(clean.newPhoto){ const path='items/'+clean.id+'/'+Date.now().toString(36)+'.jpg'; meta.photos[path]=clean.newPhoto; photoUrls[path]=clean.newPhoto; clean.photo_path=path; }
+  delete clean.isNew; delete clean.armed; delete clean.newPhoto;
+  if(clean.type!=='routine') clean.every=null;
+  if(clean.type==='goal'){ clean.due=null; clean.goal=null; }
+  const ix=state.items.findIndex(x=>x.id===clean.id);
+  if(ix>=0) state.items[ix]=clean; else state.items.push(clean);
+  $('#dlg').close(); commit(); return;
+ }
+ if(act==='pdel'){
+  if(!edPlace.armed){ edPlace.armed=true; drawPlaceEditor(); return; }
+  const snap=snapshot(), p=edPlace;
+  state.places=state.places.filter(x=>x.id!==p.id); state.places.forEach(x=>{ if(x.parent===p.id) x.parent=p.parent||null; });
+  if(ui.place===p.id) ui.place=p.parent||null;
+  $('#dlg').close(); commit(); toast(s('del'),snap); return;
+ }
+ if(act==='psave'){
+  const f=$('#plform').elements, p=edPlace;
+  p.en=f.en.value.trim(); p.es=f.es.value.trim(); p.kind=f.kind.value; p.parent=f.parent.value||null;
+  if(!p.en&&!p.es){ f.en.focus(); return; }
+  const clean=Object.assign({},p); delete clean.isNew; delete clean.armed;
+  const ix=state.places.findIndex(x=>x.id===clean.id);
+  if(ix>=0) state.places[ix]=clean; else state.places.push(clean);
+  $('#dlg').close(); commit(); return;
+ }
+});
+$('#fab').addEventListener('click',()=>openEditor(null));
+$('#sync').addEventListener('click',()=>{
+ if(DEMO){ meta.online=!meta.online; if(meta.online&&meta.pending){ const n=meta.pending; meta.pending=0; saveLocal(); renderAll(); toast(s('synced')(n)); return; } saveLocal(); renderAll(); return; }
+ sync();
+});
+document.addEventListener('submit',ev=>{
+ const f=ev.target;
+ if(f.id==='edform'){ ev.preventDefault(); const sv=document.querySelector('[data-act="esave"]'); if(sv) sv.click(); return; }
+ if(f.id==='plform'){ ev.preventDefault(); const sv=document.querySelector('[data-act="psave"]'); if(sv) sv.click(); return; }
+ if(f.id==='addanimal'){ ev.preventDefault(); const na=f.elements.name.value.trim(); if(!na) return; state.animals.push({id:uid('a'),sp:f.elements.sp.value,name:na,owner:'ranch',home:null,notes:null}); commit(); return; }
+ if(f.id==='addperson'){ ev.preventDefault(); const name=f.elements.name.value.trim(); if(!name) return;
+  state.helpers.push({id:uid('h'),name,role:f.elements.role.value,lang:f.elements.lang.value,phone:f.elements.phone.value.trim()||null,email:f.elements.email.value.trim().toLowerCase()||null}); commit(); }
+});
+document.addEventListener('change',ev=>{
+ const t=ev.target;
+ const ar=t.closest&&t.closest('[data-aid]');
+ if(ar&&t.dataset.af){ const a=animal(ar.dataset.aid), v=t.value.trim(); if(t.dataset.af==='name'&&!v) return; a[t.dataset.af]=t.dataset.af==='home'?(v||null):v; commit(); return; }
+ const hr=t.closest&&t.closest('[data-hid]');
+ if(hr&&t.dataset.hf){ const h=helper(hr.dataset.hid); h[t.dataset.hf]=t.value.trim()||null; if(t.dataset.hf!=='phone'&&!h[t.dataset.hf]) return; commit(); return; }
+ if(t.name!=='photo'||!ed) return;
+ const file=t.files&&t.files[0]; if(!file) return;
+ readForm();
+ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{
+  const k=Math.min(1,960/Math.max(img.width,img.height)), c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height); ed.newPhoto=c.toDataURL('image/jpeg',.72); drawEditor(); }; img.src=r.result; };
+ r.readAsDataURL(file);
+});
+$('#dlg').addEventListener('close',()=>{ ed=null; edPlace=null; });
+window.addEventListener('online',()=>{ updatePill(); sync(); });
+window.addEventListener('offline',updatePill);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') sync(); });
+setInterval(()=>{ if(document.visibilityState==='visible') sync(); }, 45000);
+
+/* ---------- sign in ---------- */
+function showGate(text, withSignOut){
+ $('#app').hidden=true; $('#gate').hidden=false;
+ $('#gateLogin').hidden=!!text; $('#gateMsg').hidden=!text;
+ if(text){ $('#gateText').textContent=text; $('#gateOut').hidden=!withSignOut; }
+}
+function showLogin(){
+ showGate(null);
+ let email='';
+ $('#sendCode').onclick=async()=>{
+  email=$('#email').value.trim().toLowerCase(); if(!email.includes('@')) return $('#email').focus();
+  const b=$('#sendCode'); b.disabled=true;
+  const {error}=await sb.auth.signInWithOtp({email, options:{emailRedirectTo:location.origin+location.pathname}});
+  b.disabled=false;
+  if(error){ $('#codeMsg').textContent=error.message; return toast(error.message); }
+  $('#stepEmail').hidden=true; $('#stepCode').hidden=false;
+  $('#codeMsg').textContent='Code sent to '+email+' · Código enviado a '+email; $('#code').focus();
+ };
+ $('#email').onkeydown=e=>{ if(e.key==='Enter') $('#sendCode').click(); };
+ $('#verify').onclick=async()=>{
+  const token=$('#code').value.replace(/\D/g,''); if(!token) return;
+  const {error}=await sb.auth.verifyOtp({email, token, type:'email'});
+  if(error){ $('#codeMsg').textContent='That code didn’t work. · Ese código no funcionó.'; return; }
+  location.reload();
+ };
+ $('#code').onkeydown=e=>{ if(e.key==='Enter') $('#verify').click(); };
+ $('#otherEmail').onclick=()=>{ $('#stepEmail').hidden=false; $('#stepCode').hidden=true; };
+}
+$('#gateOut').addEventListener('click',async()=>{ if(sb) await sb.auth.signOut(); localStorage.removeItem(LKEY); location.reload(); });
+
+function startApp(welcome){
+ $('#gate').hidden=true; $('#app').hidden=false;
+ if(!helper(state.viewer)) state.viewer=meta.me||(state.helpers[0]&&state.helpers[0].id)||null;
+ renderAll();
+ if(welcome) toast(welcome);
+}
+async function boot(){
+ loadLocal();
+ if(DEMO){ startApp(); return; }
+ if(!window.supabase){ if(meta.me){ startApp(); return; } showGate('No connection. Open this near the house the first time. · Sin conexión. Ábrelo cerca de la casa la primera vez.'); return; }
+ sb=supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true}});
+ const join=(location.hash.match(/join=([\w-]+)/)||[])[1];
+ let {data:{session}}=await sb.auth.getSession();
+ let welcome=null;
+ if(join){
+  history.replaceState(null,'',location.pathname+location.search);
+  try{
+   if(!session){ const r=await sb.auth.signInAnonymously(); if(r.error) throw r.error; session=r.data.session; }
+   const {data,error}=await sb.rpc('work_claim_invite',{p_token:join}); if(error) throw error;
+   if(meta.me && meta.me!==data.id){ state={places:[],helpers:[],animals:[],items:[],viewer:null}; meta=freshMeta(); rebuildShadow(); }
+   meta.me=data.id; state.viewer=data.id; saveLocal();
+   welcome=STR[data.lang].welcome(data.name);
+  }catch(e){
+   console.warn(e);
+   const off=/anonymous/i.test(e.message||'');
+   return showGate(off ? 'Invite links are switched off. Ask Will. · Los enlaces están apagados. Avísale a Will.' : 'This link doesn’t work anymore. Ask Walker for a new one. · Este enlace ya no funciona. Pídele uno nuevo a Walker.', !!session);
+  }
+ }
+ if(!session){ if(meta.me && !navigator.onLine){ startApp(); return; } return showLogin(); }
+ try{
+  const {data,error}=await sb.rpc('work_me'); if(error) throw error;
+  if(!data) return showGate('This account isn’t on the ranch list yet. Ask Will to add your email in People. · Esta cuenta no está en la lista.', true);
+  if(meta.me && meta.me!==data){ state={places:[],helpers:[],animals:[],items:[],viewer:null}; meta=freshMeta(); rebuildShadow(); }
+  meta.me=data; if(!state.viewer) state.viewer=data; saveLocal();
+ }catch(e){
+  if(!meta.me) return showGate('No connection. Open this near the house the first time. · Sin conexión. Ábrelo cerca de la casa la primera vez.');
+ }
+ startApp(welcome);
+ syncing=false; await sync();
+ if(!helper(state.viewer)) state.viewer=meta.me;
+ renderAll();
+ subscribe();
+}
+if('serviceWorker' in navigator && !DEMO && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+window.__work={get state(){return state},get meta(){return meta},sync};
+boot();
+})();
+</script>
+
+</body>
+</html>
