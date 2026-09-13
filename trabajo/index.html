@@ -1045,6 +1045,7 @@ async function boot(){
  subscribe();
 }
 if('serviceWorker' in navigator && !DEMO && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+window.addEventListener('hashchange',()=>{ if(/join=/.test(location.hash)) location.reload(); });
 window.__work={get state(){return state},get meta(){return meta},sync};
 boot();
 })();
