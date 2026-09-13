@@ -2,707 +2,818 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12100a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex">
 <title>Wild Horse Family Tree</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐎</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#12100a;
-  --surface:#1e1608;
-  --card-bg:#2a1e0d;
-  --card-border:#5a3e1e;
-  --accent:#c8832a;
-  --accent-light:#e8a84a;
-  --text:#f0e0c0;
-  --text-muted:#907050;
-  --link-color:#7a5a2a;
-  --stallion-border:#4a7abf;
-  --mare-border:#bf4a8a;
-  --gelding-border:#4a9a60;
-  --foal-border:#9a8a3a;
+  --bg:#12100a; --surface:#1e1608; --card:#2a1e0d; --line:#5a3e1e;
+  --accent:#c8832a; --accent-2:#e8a84a; --text:#f0e0c0; --muted:#a88660;
+  --stallion:#5a8ad0; --mare:#d05a9a; --gelding:#5aaa70; --unknown:#9a8a6a;
+  --danger:#d06050;
+  --safe-b:env(safe-area-inset-bottom,0px);
 }
-body{font-family:'Georgia',serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;user-select:none}
+html,body{height:100%}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
 
-/* ─── HEADER ─── */
-header{
-  background:linear-gradient(135deg,#2a1e0d,#12100a);
-  border-bottom:2px solid var(--accent);
-  padding:10px 18px;
-  display:flex;align-items:center;gap:14px;
-  flex-shrink:0;z-index:100;
-  box-shadow:0 2px 12px rgba(0,0,0,0.6);
+/* ── header ── */
+header{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,#2a1e0d,#12100a);border-bottom:2px solid var(--accent);padding:10px 14px;display:flex;align-items:center;gap:10px}
+header h1{font-size:1.15rem;color:var(--accent-2);line-height:1.1}
+header .sub{font-size:.72rem;color:var(--muted);font-style:italic}
+.hdr-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 11px;font-size:.8rem;min-height:34px}
+.chip.on{background:var(--accent);color:#1a0f05;border-color:var(--accent-2);font-weight:bold}
+
+/* ── toolbar ── */
+.bar{display:flex;gap:8px;padding:10px 14px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:57px;z-index:40}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:var(--surface);border:0;padding:8px 14px;font-size:.88rem;min-height:40px}
+.seg button.on{background:var(--accent);color:#1a0f05;font-weight:bold}
+.search{flex:1;min-width:140px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:16px;outline:none}
+.search:focus{border-color:var(--accent)}
+
+/* ── buttons ── */
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-size:.92rem;min-height:44px}
+.btn:hover{border-color:var(--accent);color:var(--accent-2)}
+.btn-primary{background:var(--accent);border-color:var(--accent-2);color:#1a0f05;font-weight:bold}
+.btn-primary:hover{background:var(--accent-2);color:#1a0f05}
+.btn-danger{background:#3a120e;border-color:#7a2a22;color:#ffb8a8}
+.btn:disabled{opacity:.5;cursor:default}
+.fab{position:fixed;right:18px;bottom:calc(18px + var(--safe-b));z-index:60;border-radius:999px;padding:14px 22px;font-size:1rem;box-shadow:0 6px 20px rgba(0,0,0,.6)}
+
+/* ── herd view ── */
+#herd{padding:6px 14px calc(100px + var(--safe-b))}
+.band-h{display:flex;align-items:baseline;gap:8px;margin:18px 0 8px;color:var(--accent-2);font-size:1rem;border-bottom:1px solid var(--line);padding-bottom:4px}
+.band-h small{color:var(--muted);font-size:.78rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.hc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;cursor:pointer;min-width:0}
+.hc:hover{border-color:var(--accent)}
+.hc .av{border:3px solid var(--unknown)}
+.hc.stallion .av{border-color:var(--stallion)} .hc.mare .av{border-color:var(--mare)} .hc.gelding .av{border-color:var(--gelding)}
+.hc.gone{opacity:.6}
+.av{width:84px;height:84px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px;background:var(--surface);border:2px solid var(--line)}
+div.av{display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+.hc .nm{font-weight:bold;color:var(--accent-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc .mt{font-size:.74rem;color:var(--muted);line-height:1.45;margin-top:2px}
+.tag{display:inline-block;font-size:.66rem;padding:2px 7px;border-radius:999px;margin-top:5px;border:1px solid var(--line);color:var(--muted)}
+.tag.missing{color:#e8c070;border-color:#7a6030}
+.tag.deceased{color:#b0a090}
+.empty{text-align:center;color:var(--muted);padding:60px 20px;line-height:1.7}
+.empty .big{font-size:4.5rem;opacity:.3}
+
+/* ── tree view ── */
+#tree{position:fixed;inset:0;top:118px;background:var(--bg);touch-action:none}
+#tree svg{width:100%;height:100%;display:block;cursor:grab}
+.tlink{fill:none;stroke-width:2.2;stroke-opacity:.75}
+.tlink.sire{stroke:var(--stallion)} .tlink.dam{stroke:var(--mare)}
+.tnode{cursor:pointer}
+.tnode rect{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.tnode:hover rect{stroke:var(--accent)}
+.tnode.sel rect{stroke:var(--accent-2);stroke-width:3}
+.tnode text{fill:var(--text);font-family:Georgia,serif;text-anchor:middle}
+.tnode .tn{fill:var(--accent-2);font-weight:bold;font-size:14px}
+.tnode .tm{fill:var(--muted);font-size:11px}
+.legend{position:absolute;left:12px;top:10px;background:rgba(30,22,8,.92);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:.74rem;color:var(--muted);pointer-events:none}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.tnote{position:absolute;left:12px;bottom:calc(84px + var(--safe-b));right:70px;font-size:.78rem;color:var(--muted);pointer-events:none}
+.zoom{position:absolute;right:18px;bottom:calc(84px + var(--safe-b));display:flex;flex-direction:column;gap:6px}
+.zoom button{width:42px;height:42px;border-radius:10px;background:rgba(30,22,8,.92);border:1px solid var(--line);font-size:1.2rem}
+
+/* ── sheets (bottom on phone, side on desktop) ── */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow-y:auto;background:var(--surface);border-top:2px solid var(--accent);border-radius:18px 18px 0 0;z-index:110;padding:18px 18px calc(22px + var(--safe-b));animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:760px){
+  .sheet{left:auto;top:0;width:420px;max-height:none;border-top:0;border-left:2px solid var(--accent);border-radius:0;animation:none}
 }
-header h1{font-size:1.5rem;color:var(--accent-light);text-shadow:0 2px 6px rgba(0,0,0,0.7);letter-spacing:0.03em}
-.subtitle{font-size:0.8rem;color:var(--text-muted);font-style:italic}
-.toolbar{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.sheet h2{color:var(--accent-2);font-size:1.3rem;margin-bottom:2px;padding-right:40px}
+.sheet .x{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:10px;background:none;border:0;font-size:1.6rem;color:var(--muted)}
+.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 4px}
+.val{font-size:.95rem;line-height:1.5}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
+.link{background:none;border:0;color:var(--accent-2);text-decoration:underline;text-underline-offset:3px;padding:3px 0;text-align:left;display:block}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.photos .ph{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--card);border:2px solid var(--line)}
+.photos .ph.cover{border-color:var(--accent-2)}
+.photos img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.hero{width:100%;max-height:48vh;object-fit:cover;border-radius:12px;display:block;margin:8px 0 4px;cursor:zoom-in;background:var(--card)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
 
-/* ─── BUTTONS ─── */
-.btn{
-  background:var(--surface);color:var(--text);
-  border:1px solid var(--card-border);
-  padding:6px 14px;border-radius:6px;cursor:pointer;
-  font-family:inherit;font-size:0.85rem;
-  transition:all .2s;white-space:nowrap;
-}
-.btn:hover{background:var(--card-bg);border-color:var(--accent);color:var(--accent-light)}
-.btn-primary{background:var(--accent);color:#1a0f05;border-color:var(--accent-light);font-weight:bold}
-.btn-primary:hover{background:var(--accent-light)}
-.btn-danger{background:#3a0f0f;border-color:#7a2a2a}
-.btn-danger:hover{background:#6a1a1a;border-color:#cc4444;color:#ffaaaa}
-.btn-sm{padding:4px 10px;font-size:0.78rem}
+/* ── form ── */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.fg input:not([type=checkbox]),.fg select,.fg textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;outline:none;min-height:44px}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent)}
+.fg textarea{min-height:80px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;align-items:center;gap:8px;font-size:.88rem;margin-top:6px}
+.chk input{width:20px;height:20px;accent-color:var(--accent)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 4px}
+.pgrid .ph{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:2px solid var(--line);background:var(--card)}
+.pgrid .ph.cover{border-color:var(--accent-2)}
+.pgrid img{width:100%;height:100%;object-fit:cover}
+.pgrid .ph button{position:absolute;background:rgba(0,0,0,.72);border:0;border-radius:8px;font-size:.72rem;padding:4px 7px}
+.pgrid .ph .rm{top:4px;right:4px}
+.pgrid .ph .cv{bottom:4px;left:4px}
+.pgrid .add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-style:dashed;color:var(--muted);font-size:.8rem;cursor:pointer}
+.pgrid .add span{font-size:1.8rem}
+.busy{opacity:.55}
 
-/* ─── TREE CONTAINER ─── */
-#tree-container{flex:1;overflow:hidden;position:relative;cursor:grab}
-#tree-container:active{cursor:grabbing}
-#tree-svg{width:100%;height:100%}
-.link{fill:none;stroke:var(--link-color);stroke-width:2px;stroke-opacity:0.8}
+/* ── login ── */
+.login{max-width:380px;margin:12vh auto 0;padding:24px;text-align:center}
+.login .big{font-size:4rem}
+.login h1{color:var(--accent-2);margin:6px 0}
+.login p{color:var(--muted);line-height:1.6;margin:10px 0 18px;font-size:.95rem}
+.login input{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px;font-size:18px;text-align:center;outline:none;margin-bottom:10px}
+.login input.code{letter-spacing:.4em;font-size:24px}
+.login .btn{width:100%}
+.login .lang{margin-top:22px}
 
-/* ─── CARDS LAYER ─── */
-#cards-layer{position:absolute;top:0;left:0;transform-origin:0 0;pointer-events:none}
-
-/* ─── HORSE CARDS ─── */
-.horse-card{
-  position:absolute;width:155px;
-  background:var(--card-bg);
-  border:2px solid var(--card-border);
-  border-radius:12px;padding:10px 10px 8px;
-  cursor:pointer;transition:border-color .2s,box-shadow .2s;
-  text-align:center;pointer-events:all;
-  box-shadow:0 4px 12px rgba(0,0,0,0.5);
-}
-.horse-card:hover{border-color:var(--accent);box-shadow:0 6px 22px rgba(200,131,42,0.35);z-index:10}
-.horse-card.selected{border-color:var(--accent-light);box-shadow:0 0 0 3px rgba(232,168,74,0.4)}
-.horse-card.stallion{border-left:4px solid var(--stallion-border)}
-.horse-card.mare{border-left:4px solid var(--mare-border)}
-.horse-card.gelding{border-left:4px solid var(--gelding-border)}
-.horse-card.foal{border-left:4px solid var(--foal-border)}
-.card-photo{
-  width:72px;height:72px;border-radius:50%;object-fit:cover;
-  margin:0 auto 7px;display:block;
-  border:2px solid var(--card-border);background:var(--surface);
-}
-.card-icon{
-  width:72px;height:72px;border-radius:50%;
-  margin:0 auto 7px;background:var(--surface);
-  border:2px solid var(--card-border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.9rem;
-}
-.card-name{font-size:0.9rem;font-weight:bold;color:var(--accent-light);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.card-meta{font-size:0.72rem;color:var(--text-muted);line-height:1.5}
-.card-badge{display:inline-block;font-size:0.62rem;padding:2px 6px;border-radius:10px;margin-top:5px;background:#1a3a2a;color:#4aaa6a;border:1px solid #2a5a3a}
-
-/* ─── SIDE PANEL ─── */
-#side-panel{
-  position:fixed;right:0;top:0;height:100%;width:320px;
-  background:var(--surface);border-left:2px solid var(--card-border);
-  transform:translateX(100%);transition:transform .3s ease;
-  z-index:200;overflow-y:auto;
-  box-shadow:-4px 0 20px rgba(0,0,0,0.5);
-}
-#side-panel.open{transform:translateX(0)}
-.panel-inner{padding:20px}
-#side-panel h2{color:var(--accent-light);font-size:1.25rem;margin-bottom:4px}
-.panel-subtitle{color:var(--text-muted);font-size:0.85rem;margin-bottom:18px}
-.panel-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);display:block;margin:0 auto 14px}
-.panel-icon{width:90px;height:90px;border-radius:50%;background:var(--card-bg);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin:0 auto 14px}
-.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.detail-item .dlabel{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
-.detail-item .dval{font-size:0.9rem;color:var(--text)}
-.detail-full{margin-bottom:14px}
-.detail-full .dlabel{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.detail-full .dval{font-size:0.88rem;color:var(--text);line-height:1.5}
-.link-btn{color:var(--accent-light);text-decoration:none;cursor:pointer;font-family:inherit;font-size:0.88rem;background:none;border:none;padding:0;display:block;text-align:left;margin-bottom:2px}
-.link-btn:hover{text-decoration:underline}
-.panel-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--card-border)}
-.close-btn{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px}
-.close-btn:hover{color:var(--text);background:var(--card-bg)}
-.section-label{font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px;border-bottom:1px solid var(--card-border);padding-bottom:4px}
-
-/* ─── MODAL ─── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:400;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
-.modal-overlay.hidden{display:none}
-.modal-box{
-  background:var(--surface);border:2px solid var(--card-border);
-  border-radius:14px;padding:24px;
-  width:440px;max-width:96vw;max-height:90vh;overflow-y:auto;
-  box-shadow:0 20px 60px rgba(0,0,0,0.8);
-}
-.modal-box h2{color:var(--accent-light);margin-bottom:20px;font-size:1.25rem}
-.form-group{margin-bottom:13px}
-.form-group label{display:block;font-size:0.8rem;color:var(--text-muted);margin-bottom:4px}
-.form-group input,.form-group select,.form-group textarea{
-  width:100%;background:var(--card-bg);border:1px solid var(--card-border);
-  color:var(--text);padding:8px 10px;border-radius:6px;
-  font-family:inherit;font-size:0.88rem;outline:none;
-}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
-.form-group textarea{resize:vertical;min-height:65px}
-.form-group select option{background:var(--card-bg)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.checkbox-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem}
-.checkbox-row input[type="checkbox"]{width:auto;accent-color:var(--accent);cursor:pointer}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--card-border)}
-.photo-upload-area{text-align:center;margin-bottom:18px}
-.photo-upload-area img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--card-border);display:block;margin:0 auto 8px}
-.photo-placeholder-btn{
-  width:80px;height:80px;border-radius:50%;background:var(--card-bg);
-  border:2px dashed var(--card-border);display:flex;align-items:center;
-  justify-content:center;font-size:2rem;cursor:pointer;margin:0 auto 8px;
-  transition:border-color .2s;
-}
-.photo-placeholder-btn:hover{border-color:var(--accent)}
-
-/* ─── EMPTY STATE ─── */
-#empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text-muted);pointer-events:none}
-#empty-state.hidden{display:none}
-.empty-horse{font-size:6rem;opacity:.2;animation:pulse 3s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.2}50%{opacity:.35}}
-#empty-state p{font-size:1.05rem;text-align:center;max-width:280px;line-height:1.6}
-
-/* ─── HUD ─── */
-.zoom-controls{position:absolute;bottom:20px;right:20px;display:flex;gap:6px;z-index:50}
-.zoom-btn{width:36px;height:36px;border-radius:8px;background:rgba(30,22,8,.9);border:1px solid var(--card-border);color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.zoom-btn:hover{background:var(--card-bg);border-color:var(--accent);color:var(--accent-light)}
-.stats-bar{position:absolute;bottom:20px;left:20px;background:rgba(30,22,8,.9);border:1px solid var(--card-border);border-radius:8px;padding:6px 12px;font-size:0.78rem;color:var(--text-muted);z-index:50}
-.legend{position:absolute;top:14px;left:14px;background:rgba(30,22,8,.9);border:1px solid var(--card-border);border-radius:8px;padding:8px 12px;font-size:0.72rem;z-index:50}
-.legend-item{display:flex;align-items:center;gap:6px;margin-bottom:3px;color:var(--text-muted)}
-.legend-swatch{width:10px;height:10px;border-radius:2px}
-
-/* ─── NOTIFICATION ─── */
-.notif{position:fixed;top:76px;right:20px;background:var(--card-bg);border:1px solid var(--accent);color:var(--accent-light);padding:10px 16px;border-radius:8px;z-index:1000;font-size:0.88rem;animation:slideIn .3s ease;max-width:240px;box-shadow:0 4px 14px rgba(0,0,0,0.5)}
-@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
-
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar{width:7px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(90px + var(--safe-b));transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);color:var(--accent-2);padding:10px 18px;border-radius:10px;z-index:300;font-size:.92rem;max-width:90vw;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.6)}
+.banner{margin:10px 14px 0;padding:12px 14px;border:1px solid var(--accent);border-radius:10px;background:var(--card);font-size:.9rem;line-height:1.5}
+.banner .btn{margin-top:8px;margin-right:6px}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:400;display:flex;align-items:center;justify-content:center}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain}
 </style>
 </head>
 <body>
 
-<header>
-  <span style="font-size:2rem">🐎</span>
-  <div>
-    <h1>Wild Horse Family Tree</h1>
-    <div class="subtitle">Track lineage, herds, and history</div>
-  </div>
-  <div class="toolbar">
-    <button class="btn btn-primary" onclick="openAddModal()">+ Add Horse</button>
-    <button class="btn" onclick="exportData()">📤 Export</button>
-    <button class="btn" onclick="document.getElementById('importFile').click()">📥 Import</button>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-    <button class="btn" onclick="autoFitView()">⊡ Fit View</button>
-  </div>
-</header>
-
-<div id="tree-container">
-  <svg id="tree-svg"><g id="tree-g"><g id="links-g"></g></g></svg>
-  <div id="cards-layer"></div>
-
-  <div id="empty-state">
-    <div class="empty-horse">🐎</div>
-    <p>Your family tree is empty.<br>Click <strong style="color:var(--accent-light)">+ Add Horse</strong> to begin building your herd's history.</p>
-  </div>
-
-  <div class="legend">
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--stallion-border)"></div> Stallion</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--mare-border)"></div> Mare</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--gelding-border)"></div> Gelding</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--foal-border)"></div> Foal</div>
-  </div>
-
-  <div class="zoom-controls">
-    <button class="zoom-btn" onclick="doZoom(1.3)" title="Zoom in">+</button>
-    <button class="zoom-btn" onclick="doZoom(0.77)" title="Zoom out">−</button>
-    <button class="zoom-btn" onclick="autoFitView()" title="Fit all">⊡</button>
-  </div>
-
-  <div class="stats-bar" id="stats-bar" style="display:none"></div>
-</div>
-
-<!-- ═══ SIDE PANEL ═══ -->
-<div id="side-panel">
-  <button class="close-btn" onclick="closeSidePanel()">×</button>
-  <div class="panel-inner" id="panel-inner"></div>
-</div>
-
-<!-- ═══ MODAL ═══ -->
-<div class="modal-overlay hidden" id="modal-overlay">
-  <div class="modal-box">
-    <h2 id="modal-title">Add Horse</h2>
-    <input type="hidden" id="f-id">
-
-    <div class="photo-upload-area">
-      <img id="photo-prev" style="display:none" alt="preview">
-      <div class="photo-placeholder-btn" id="photo-ph" onclick="document.getElementById('photo-file').click()" title="Upload photo">🐴</div>
-      <input type="file" id="photo-file" accept="image/*" style="display:none" onchange="onPhotoUpload(event)">
-      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
-        <button class="btn btn-sm" onclick="document.getElementById('photo-file').click()">📷 Upload Photo</button>
-        <button class="btn btn-sm" id="rm-photo-btn" style="display:none" onclick="clearPhoto()">✕ Remove</button>
-      </div>
+<!-- ═══ LOGIN ═══ -->
+<div id="login" hidden>
+  <div class="login">
+    <div class="big">🐎</div>
+    <h1 data-t="title"></h1>
+    <div id="login-email">
+      <p data-t="loginIntro"></p>
+      <input id="email" type="email" autocomplete="email" inputmode="email" data-ph="emailPh">
+      <button class="btn btn-primary" id="send-code" data-t="sendCode"></button>
     </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Name *</label>
-        <input id="f-name" type="text" placeholder="e.g. Thundercloud">
-      </div>
-      <div class="form-group">
-        <label>Birth Year</label>
-        <input id="f-year" type="number" placeholder="e.g. 2018" min="1800" max="2100">
-      </div>
+    <div id="login-code" hidden>
+      <p id="code-msg"></p>
+      <input id="code" class="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••">
+      <button class="btn btn-primary" id="verify-code" data-t="verify"></button>
+      <button class="btn" id="back-email" style="margin-top:8px" data-t="differentEmail"></button>
     </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Sex</label>
-        <select id="f-sex">
-          <option value="">— Unknown —</option>
-          <option value="stallion">Stallion ♂</option>
-          <option value="mare">Mare ♀</option>
-          <option value="gelding">Gelding ⚲</option>
-          <option value="foal">Foal 🐣</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Color</label>
-        <input id="f-color" type="text" placeholder="e.g. Bay, Buckskin">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Markings</label>
-      <input id="f-markings" type="text" placeholder="e.g. White blaze, four stockings">
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Sire (Father)</label>
-        <select id="f-sire"><option value="">— Unknown —</option></select>
-      </div>
-      <div class="form-group">
-        <label>Dam (Mother)</label>
-        <select id="f-dam"><option value="">— Unknown —</option></select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="checkbox-row">
-        <input type="checkbox" id="f-ranch"> Currently on ranch
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label>Comments / Notes</label>
-      <textarea id="f-comments" placeholder="Observations, history, notable traits..."></textarea>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveHorse()">💾 Save</button>
-    </div>
+    <div class="lang"><button class="chip" data-lang-toggle></button></div>
   </div>
 </div>
+
+<!-- ═══ NOT ON LIST ═══ -->
+<div id="denied" hidden>
+  <div class="login">
+    <div class="big">🔒</div>
+    <h1 data-t="deniedTitle"></h1>
+    <p id="denied-msg"></p>
+    <button class="btn" id="denied-out" data-t="signOut"></button>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app" hidden>
+  <header>
+    <span style="font-size:1.7rem">🐎</span>
+    <div><h1 data-t="title"></h1><div class="sub" id="stats"></div></div>
+    <div class="hdr-right">
+      <button class="chip" data-lang-toggle></button>
+      <button class="chip" id="menu-btn" aria-label="Menu">☰</button>
+    </div>
+  </header>
+  <div class="bar">
+    <div class="seg">
+      <button data-view="herd" class="on" data-t="herdView"></button>
+      <button data-view="tree" data-t="treeView"></button>
+    </div>
+    <input class="search" id="search" type="search" data-ph="searchPh">
+  </div>
+  <div id="banner-slot"></div>
+  <main id="herd"></main>
+  <div id="tree" hidden>
+    <svg><g id="tg"><g id="tlinks"></g><g id="tnodes"></g></g></svg>
+    <div class="legend"><div><i style="background:var(--stallion)"></i><span data-t="sireLine"></span></div><div><i style="background:var(--mare)"></i><span data-t="damLine"></span></div></div>
+    <div class="zoom"><button id="zin">+</button><button id="zout">−</button><button id="zfit">⊡</button></div>
+    <div class="tnote" id="tnote"></div>
+  </div>
+  <button class="btn btn-primary fab" id="add-btn" data-t="addHorse"></button>
+</div>
+
+<div id="sheet-slot"></div>
 
 <script>
-// ══════════════════════════════════════════════
-//  DATA
-// ══════════════════════════════════════════════
-let db = {};
-let photoBuffer = null;
+// ═══════════════════════════════════════════════════════════════
+//  CONFIG — the two values from Supabase → Project Settings → API
+// ═══════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://xgivwdptzxvgybrfucjv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhnaXZ3ZHB0enh2Z3licmZ1Y2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMzEyNDQsImV4cCI6MjEwNDkwNzI0NH0.fxtkUCKtfG9cWH5nZwNMxNDgbSN79vk2Hx6Ncw9nnqc'; // public anon key — safe in the page; privacy is enforced by row-level security
 
-function uid(){ return 'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,6) }
-
-function persist(){ try{ localStorage.setItem('whft2', JSON.stringify(db)) }catch(e){} }
-
-function hydrate(){
-  try{
-    const s = localStorage.getItem('whft2');
-    if(s) db = JSON.parse(s);
-  }catch(e){}
-}
-
-function exportData(){
-  const blob = new Blob([JSON.stringify({v:2, horses:db}, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'wild-horse-tree.json';
-  a.click();
-  toast('Data exported!');
-}
-
-function importData(e){
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    try{
-      const d = JSON.parse(ev.target.result);
-      db = d.horses || d; // support v1 and v2
-      persist(); draw(); toast('Imported successfully!');
-    }catch(err){ toast('Import failed — invalid file') }
-  };
-  r.readAsText(f);
-  e.target.value='';
-}
-
-// ══════════════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════════════
-function openAddModal(prefillParentId){
-  document.getElementById('modal-title').textContent = 'Add Horse';
-  document.getElementById('f-id').value = '';
-  ['f-name','f-year','f-color','f-markings','f-comments'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-sex').value = '';
-  document.getElementById('f-ranch').checked = false;
-  photoBuffer = null; refreshPhotoUI(null);
-  populateParentDrops(null);
-  if(prefillParentId){
-    const p = db[prefillParentId];
-    if(p){
-      if(p.sex==='stallion') document.getElementById('f-sire').value = prefillParentId;
-      else if(p.sex==='mare') document.getElementById('f-dam').value = prefillParentId;
-    }
+// ═══════════════════════════════════════════════════════════════
+//  WORDS (English / Español)
+// ═══════════════════════════════════════════════════════════════
+const T = {
+  en: {
+    title:'Wild Horse Family Tree', langBtn:'Español',
+    loginIntro:'Private family tree. Enter your email and we\'ll send you a sign-in code.',
+    emailPh:'your@email.com', sendCode:'Send me a code', verify:'Sign in', differentEmail:'Use a different email',
+    codeSent:e=>`We sent a code to ${e}. Type it below (or tap the link in the email).`,
+    badCode:'That code didn\'t work. Check it, or ask for a new one.',
+    deniedTitle:'Not on the list yet', denied:e=>`${e} isn't on the access list. Ask Will to add it, then sign in again.`, signOut:'Sign out',
+    herdView:'Herd', treeView:'Family tree', searchPh:'Search names, colors, markings…', addHorse:'+ Add horse',
+    stats:(n,here)=>`${n} horses · ${here} here now`,
+    noBand:'No band yet', emptyHerd:'No horses yet.<br>Tap <b>+ Add horse</b> to start the herd.', noMatch:'No horses match that search.',
+    sireLine:'Sire (father)', damLine:'Dam (mother)',
+    treeNote:n=>n?`${n} horse${n>1?'s':''} with no known parents or foals ${n>1?'are':'is'} only in the Herd view.`:'',
+    treeEmpty:'The tree appears once you set a sire or dam on a horse.',
+    stallion:'Stallion', mare:'Mare', gelding:'Gelding', unknown:'Unknown',
+    here:'Here now', missing:'Not seen lately', deceased:'Passed away',
+    born:'Born', about:'about', color:'Color', markings:'Markings', band:'Band', status:'Status', lastSeen:'Last seen',
+    sire:'Sire (father)', dam:'Dam (mother)', foals:'Foals', notes:'Notes', photos:'Photos',
+    edit:'Edit', addFoal:'+ Foal', del:'Delete', save:'Save', cancel:'Cancel', saving:'Saving…',
+    newHorse:'New horse', editHorse:'Edit horse', name:'Name', namePh:'e.g. Luna', sex:'Sex',
+    year:'Birth year', yearApprox:'Year is a guess', colorPh:'e.g. Bay, Palomino', markingsPh:'e.g. White blaze, two socks',
+    unknownOpt:'— Unknown —', noBandOpt:'— No band —', newBandOpt:'+ New band…', newBandPrompt:'Name of the new band:',
+    notesPh:'Behavior, history, who she runs with…', addPhoto:'Add photos', cover:'★ Main', makeCover:'☆ Main', remove:'✕',
+    needName:'Please give the horse a name.', saved:n=>`${n} saved`, deleted:n=>`${n} deleted`,
+    confirmDel:n=>`Delete ${n} and all their photos? Their foals stay, but lose this parent.`,
+    confirmPhoto:'Remove this photo?', photoFail:'Couldn\'t read that photo. Try a JPG or a screenshot of it.',
+    uploading:(a,b)=>`Uploading photo ${a} of ${b}…`, offline:'Couldn\'t reach the server. Check the connection and try again.',
+    menuExport:'Download a backup', menuImport:'Bring in a backup file', menuBands:'Rename bands', menuSignOut:'Sign out', menu:'Menu',
+    signedInAs:e=>`Signed in as ${e}`, renameBand:b=>`New name for “${b}” (leave empty to delete the band):`,
+    imported:n=>`Brought in ${n} horses`,
+    oldFound:n=>`This phone still has ${n} horse${n>1?'s':''} saved from the old version of this page.`, oldImport:'Bring them in', oldDismiss:'Not now',
+    setupTitle:'Almost ready', setup:'This page isn\'t connected to its database yet. Will needs to finish setup (SETUP.md).', demo:'Try the demo',
+    demoBanner:'Demo mode — nothing here is saved.'
+  },
+  es: {
+    title:'Árbol Familiar de Caballos Salvajes', langBtn:'English',
+    loginIntro:'Árbol familiar privado. Escribe tu correo y te mandamos un código para entrar.',
+    emailPh:'tu@correo.com', sendCode:'Mándame un código', verify:'Entrar', differentEmail:'Usar otro correo',
+    codeSent:e=>`Mandamos un código a ${e}. Escríbelo aquí (o toca el enlace del correo).`,
+    badCode:'Ese código no funcionó. Revísalo o pide uno nuevo.',
+    deniedTitle:'Todavía no estás en la lista', denied:e=>`${e} no está en la lista de acceso. Pídele a Will que lo agregue y vuelve a entrar.`, signOut:'Salir',
+    herdView:'Manada', treeView:'Árbol familiar', searchPh:'Buscar nombre, color, marcas…', addHorse:'+ Agregar caballo',
+    stats:(n,here)=>`${n} caballos · ${here} aquí ahora`,
+    noBand:'Sin manada', emptyHerd:'Todavía no hay caballos.<br>Toca <b>+ Agregar caballo</b> para empezar.', noMatch:'Ningún caballo coincide con la búsqueda.',
+    sireLine:'Padre (semental)', damLine:'Madre (yegua)',
+    treeNote:n=>n?`${n} caballo${n>1?'s':''} sin padres ni potros conocidos ${n>1?'solo aparecen':'solo aparece'} en Manada.`:'',
+    treeEmpty:'El árbol aparece cuando le pones padre o madre a un caballo.',
+    stallion:'Semental', mare:'Yegua', gelding:'Castrado', unknown:'Desconocido',
+    here:'Aquí ahora', missing:'No se ha visto', deceased:'Falleció',
+    born:'Nació', about:'aprox.', color:'Color', markings:'Marcas', band:'Manada', status:'Estado', lastSeen:'Última vez visto',
+    sire:'Padre', dam:'Madre', foals:'Potros', notes:'Notas', photos:'Fotos',
+    edit:'Editar', addFoal:'+ Potro', del:'Borrar', save:'Guardar', cancel:'Cancelar', saving:'Guardando…',
+    newHorse:'Caballo nuevo', editHorse:'Editar caballo', name:'Nombre', namePh:'ej. Luna', sex:'Sexo',
+    year:'Año de nacimiento', yearApprox:'El año es aproximado', colorPh:'ej. Bayo, Palomino', markingsPh:'ej. Lucero, dos calcetines',
+    unknownOpt:'— Desconocido —', noBandOpt:'— Sin manada —', newBandOpt:'+ Manada nueva…', newBandPrompt:'Nombre de la manada nueva:',
+    notesPh:'Comportamiento, historia, con quién anda…', addPhoto:'Agregar fotos', cover:'★ Principal', makeCover:'☆ Principal', remove:'✕',
+    needName:'Ponle un nombre al caballo.', saved:n=>`${n} guardado`, deleted:n=>`${n} borrado`,
+    confirmDel:n=>`¿Borrar a ${n} y todas sus fotos? Sus potros se quedan, pero sin este padre.`,
+    confirmPhoto:'¿Quitar esta foto?', photoFail:'No se pudo leer esa foto. Prueba con JPG o una captura de pantalla.',
+    uploading:(a,b)=>`Subiendo foto ${a} de ${b}…`, offline:'No se pudo conectar. Revisa la señal e intenta otra vez.',
+    menuExport:'Descargar respaldo', menuImport:'Cargar un respaldo', menuBands:'Renombrar manadas', menuSignOut:'Salir', menu:'Menú',
+    signedInAs:e=>`Conectado como ${e}`, renameBand:b=>`Nuevo nombre para “${b}” (déjalo vacío para borrar la manada):`,
+    imported:n=>`Se cargaron ${n} caballos`,
+    oldFound:n=>`Este teléfono todavía tiene ${n} caballo${n>1?'s':''} de la versión anterior de esta página.`, oldImport:'Traerlos', oldDismiss:'Ahora no',
+    setupTitle:'Casi listo', setup:'Esta página todavía no está conectada a su base de datos. Will tiene que terminar la instalación (SETUP.md).', demo:'Ver la demostración',
+    demoBanner:'Modo demostración — nada se guarda.'
   }
-  document.getElementById('modal-overlay').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('f-name').focus(), 50);
+};
+let lang = (()=>{ try{ const s=localStorage.getItem('whft-lang'); if(s) return s; }catch(e){} return (navigator.language||'').toLowerCase().startsWith('es')?'es':'en'; })();
+const t = (k,...a)=>{ const v=T[lang][k]??T.en[k]; return typeof v==='function'?v(...a):v; };
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.title=t('title');
+  document.querySelectorAll('[data-t]').forEach(el=>el.innerHTML=t(el.dataset.t));
+  document.querySelectorAll('[data-ph]').forEach(el=>el.placeholder=t(el.dataset.ph));
+  document.querySelectorAll('[data-lang-toggle]').forEach(el=>el.textContent=t('langBtn'));
 }
-
-function openEditModal(id){
-  const h = db[id]; if(!h) return;
-  document.getElementById('modal-title').textContent = 'Edit Horse';
-  document.getElementById('f-id').value = id;
-  document.getElementById('f-name').value = h.name||'';
-  document.getElementById('f-year').value = h.birthYear||'';
-  document.getElementById('f-sex').value = h.sex||'';
-  document.getElementById('f-color').value = h.color||'';
-  document.getElementById('f-markings').value = h.markings||'';
-  document.getElementById('f-ranch').checked = !!h.onRanch;
-  document.getElementById('f-comments').value = h.comments||'';
-  photoBuffer = h.photo||null; refreshPhotoUI(photoBuffer);
-  populateParentDrops(id);
-  document.getElementById('f-sire').value = h.sireId||'';
-  document.getElementById('f-dam').value = h.damId||'';
-  document.getElementById('modal-overlay').classList.remove('hidden');
-}
-
-function closeModal(){
-  document.getElementById('modal-overlay').classList.add('hidden');
-}
-
-function populateParentDrops(excludeId){
-  const all = Object.values(db).filter(h=>h.id!==excludeId);
-  // collect descendants to avoid circular refs
-  const desc = new Set();
-  if(excludeId) collectDesc(excludeId, desc);
-
-  const stallions = all.filter(h=>!desc.has(h.id) && h.sex!=='mare').sort((a,b)=>a.name.localeCompare(b.name));
-  const mares = all.filter(h=>!desc.has(h.id) && h.sex!=='stallion' && h.sex!=='gelding').sort((a,b)=>a.name.localeCompare(b.name));
-
-  const sEl = document.getElementById('f-sire');
-  const dEl = document.getElementById('f-dam');
-  sEl.innerHTML = '<option value="">— Unknown —</option>' + stallions.map(h=>`<option value="${h.id}">${h.name}${h.birthYear?' ('+h.birthYear+')':''}</option>`).join('');
-  dEl.innerHTML = '<option value="">— Unknown —</option>' + mares.map(h=>`<option value="${h.id}">${h.name}${h.birthYear?' ('+h.birthYear+')':''}</option>`).join('');
-}
-
-function collectDesc(id, set){
-  Object.values(db).filter(h=>h.sireId===id||h.damId===id).forEach(c=>{
-    if(!set.has(c.id)){ set.add(c.id); collectDesc(c.id,set); }
-  });
-}
-
-function onPhotoUpload(e){
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=ev=>{ photoBuffer=ev.target.result; refreshPhotoUI(photoBuffer); };
-  r.readAsDataURL(f);
-}
-
-function refreshPhotoUI(data){
-  const prev=document.getElementById('photo-prev');
-  const ph=document.getElementById('photo-ph');
-  const rm=document.getElementById('rm-photo-btn');
-  if(data){ prev.src=data; prev.style.display='block'; ph.style.display='none'; rm.style.display='inline-block'; }
-  else { prev.style.display='none'; ph.style.display='flex'; rm.style.display='none'; }
-}
-
-function clearPhoto(){ photoBuffer=null; refreshPhotoUI(null); document.getElementById('photo-file').value=''; }
-
-function saveHorse(){
-  const name = document.getElementById('f-name').value.trim();
-  if(!name){ toast('Please enter a name!'); document.getElementById('f-name').focus(); return; }
-  const editId = document.getElementById('f-id').value;
-  const id = editId || uid();
-  db[id]={
-    id, name,
-    birthYear: document.getElementById('f-year').value ? +document.getElementById('f-year').value : null,
-    sex: document.getElementById('f-sex').value||null,
-    color: document.getElementById('f-color').value.trim()||null,
-    markings: document.getElementById('f-markings').value.trim()||null,
-    onRanch: document.getElementById('f-ranch').checked,
-    comments: document.getElementById('f-comments').value.trim()||null,
-    photo: photoBuffer,
-    sireId: document.getElementById('f-sire').value||null,
-    damId: document.getElementById('f-dam').value||null,
-  };
-  persist(); closeModal(); draw();
-  toast(`${name} ${editId?'updated':'added'}!`);
-}
-
-function deleteHorse(id){
-  const h=db[id]; if(!h) return;
-  if(!confirm(`Delete ${h.name}? Their children will remain but lose this parent link.`)) return;
-  Object.values(db).forEach(x=>{ if(x.sireId===id) x.sireId=null; if(x.damId===id) x.damId=null; });
-  delete db[id];
-  persist(); closeSidePanel(); draw(); toast(`${h.name} removed`);
-}
-
-// ══════════════════════════════════════════════
-//  SIDE PANEL
-// ══════════════════════════════════════════════
-let selectedId = null;
-
-function showDetail(id){
-  const h=db[id]; if(!h) return;
-  selectedId=id;
-  // highlight selected card
-  document.querySelectorAll('.horse-card').forEach(c=>c.classList.toggle('selected',c.dataset.id===id));
-
-  const SEX_ICON={stallion:'♂',mare:'♀',gelding:'⚲',foal:'🐣'};
-  const SEX_LABEL={stallion:'Stallion',mare:'Mare',gelding:'Gelding',foal:'Foal'};
-  const sire=h.sireId?db[h.sireId]:null;
-  const dam=h.damId?db[h.damId]:null;
-  const children=Object.values(db).filter(x=>x.sireId===id||x.damId===id).sort((a,b)=>a.name.localeCompare(b.name));
-
-  let html=`
-  <div style="text-align:center;margin-bottom:18px">
-    ${h.photo?`<img class="panel-photo" src="${h.photo}" alt="${h.name}">`:`<div class="panel-icon">${sexIcon(h.sex)}</div>`}
-    <h2>${h.name}</h2>
-    <div class="panel-subtitle">${(SEX_ICON[h.sex]||'')+'  '+(SEX_LABEL[h.sex]||'Unknown sex')}</div>
-  </div>
-  <div class="detail-grid">
-    <div class="detail-item"><div class="dlabel">Birth Year</div><div class="dval">${h.birthYear||'—'}</div></div>
-    <div class="detail-item"><div class="dlabel">On Ranch</div><div class="dval">${h.onRanch?'✅ Yes':'❌ No'}</div></div>
-    <div class="detail-item"><div class="dlabel">Color</div><div class="dval">${h.color||'—'}</div></div>
-    <div class="detail-item"><div class="dlabel">Markings</div><div class="dval">${h.markings||'—'}</div></div>
-  </div>
-  <div class="section-label">Lineage</div>
-  <div class="detail-full">
-    <div class="dlabel">Sire (Father)</div>
-    <div class="dval">${sire?`<button class="link-btn" onclick="showDetail('${sire.id}')">🐴 ${sire.name}</button>`:'—'}</div>
-  </div>
-  <div class="detail-full">
-    <div class="dlabel">Dam (Mother)</div>
-    <div class="dval">${dam?`<button class="link-btn" onclick="showDetail('${dam.id}')">🐎 ${dam.name}</button>`:'—'}</div>
-  </div>
-  ${children.length>0?`
-  <div class="section-label">Offspring (${children.length})</div>
-  <div class="detail-full"><div class="dval">
-    ${children.map(c=>`<button class="link-btn" onclick="showDetail('${c.id}')">${sexIcon(c.sex)} ${c.name}${c.birthYear?' · '+c.birthYear:''}</button>`).join('')}
-  </div></div>`:''}
-  ${h.comments?`
-  <div class="section-label">Notes</div>
-  <div class="detail-full"><div class="dval" style="white-space:pre-wrap;font-style:italic">${h.comments}</div></div>`:''}
-  <div class="panel-actions">
-    <button class="btn" onclick="openEditModal('${id}')">✏️ Edit</button>
-    <button class="btn" onclick="openAddModal('${id}')">+ Child</button>
-    <button class="btn btn-danger" onclick="deleteHorse('${id}')">🗑️</button>
-  </div>`;
-
-  document.getElementById('panel-inner').innerHTML=html;
-  document.getElementById('side-panel').classList.add('open');
-}
-
-function closeSidePanel(){
-  document.getElementById('side-panel').classList.remove('open');
-  selectedId=null;
-  document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected'));
-}
-
-function sexIcon(sex){
-  return {stallion:'🐴',mare:'🐎',gelding:'🐴',foal:'🐣'}[sex]||'🐎';
-}
-
-// ══════════════════════════════════════════════
-//  TREE RENDERING
-// ══════════════════════════════════════════════
-const CARD_W=155, CARD_H=160, H_PAD=48, V_PAD=70;
-let zoomBehavior, lastFitTransform=d3.zoomIdentity;
-
-function initD3(){
-  const svg=d3.select('#tree-svg');
-  const g=d3.select('#tree-g');
-  zoomBehavior=d3.zoom().scaleExtent([0.08,3]).on('zoom',ev=>{
-    g.attr('transform',ev.transform);
-    document.getElementById('cards-layer').style.transform=
-      `translate(${ev.transform.x}px,${ev.transform.y}px) scale(${ev.transform.k})`;
-  });
-  svg.call(zoomBehavior);
-}
-
-function doZoom(factor){
-  d3.select('#tree-svg').transition().duration(280).call(zoomBehavior.scaleBy,factor);
-}
-
-function autoFitView(){
-  const all=Object.values(db);
-  if(!all.length) return;
-  // Re-draw first so positions are fresh, then just apply stored transform
-  draw(true);
-}
-
-function draw(fitAfter){
-  const all=Object.values(db);
-  document.getElementById('empty-state').classList.toggle('hidden',all.length>0);
-
-  const sb=document.getElementById('stats-bar');
-  if(all.length>0){
-    sb.style.display='block';
-    const onR=all.filter(h=>h.onRanch).length;
-    const stallions=all.filter(h=>h.sex==='stallion').length;
-    const mares=all.filter(h=>h.sex==='mare').length;
-    sb.textContent=`${all.length} horses · ${stallions} stallions · ${mares} mares · ${onR} on ranch`;
-  } else { sb.style.display='none'; }
-
-  if(!all.length){ clearCanvas(); return; }
-
-  const idSet=new Set(all.map(h=>h.id));
-
-  // Primary parent: sire first (if in DB), else dam
-  function primaryParent(h){
-    if(h.sireId && idSet.has(h.sireId)) return h.sireId;
-    if(h.damId && idSet.has(h.damId)) return h.damId;
-    return null;
-  }
-
-  // Find roots
-  const roots=all.filter(h=>primaryParent(h)===null);
-
-  // Build node tree recursively with cycle protection
-  function buildNode(id, ancestors=new Set()){
-    if(ancestors.has(id)) return null;
-    const next=new Set(ancestors); next.add(id);
-    const kids=all.filter(h=>primaryParent(h)===id);
-    return { id, children: kids.map(k=>buildNode(k.id,next)).filter(Boolean) };
-  }
-
-  let hData;
-  if(roots.length===1){
-    hData=buildNode(roots[0].id);
-  } else {
-    hData={ id:'__root__', children: roots.map(r=>buildNode(r.id)).filter(Boolean) };
-  }
-
-  const root=d3.hierarchy(hData);
-  const treeLayout=d3.tree().nodeSize([CARD_W+H_PAD, CARD_H+V_PAD]);
-  treeLayout(root);
-
-  const nodes=root.descendants().filter(d=>d.data.id!=='__root__');
-  const links=root.links().filter(l=>l.source.data.id!=='__root__');
-
-  // Draw SVG links (bezier curves card-bottom to card-top)
-  const linksG=d3.select('#links-g');
-  linksG.selectAll('*').remove();
-  const linkGen=d3.linkVertical().x(d=>d.x).y(d=>d.y);
-  linksG.selectAll('.link').data(links).enter().append('path').attr('class','link')
-    .attr('d',d=>linkGen({
-      source:{x:d.source.x, y:d.source.y+CARD_H/2+2},
-      target:{x:d.target.x, y:d.target.y-CARD_H/2-2}
-    }));
-
-  // Draw HTML cards
-  const layer=document.getElementById('cards-layer');
-  layer.innerHTML='';
-  nodes.forEach(node=>{
-    const h=db[node.data.id]; if(!h) return;
-    const card=makeCard(h);
-    card.style.left=(node.x-CARD_W/2)+'px';
-    card.style.top=(node.y-CARD_H/2)+'px';
-    if(h.id===selectedId) card.classList.add('selected');
-    layer.appendChild(card);
-  });
-
-  // Compute fit transform
-  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
-  nodes.forEach(n=>{
-    minX=Math.min(minX,n.x-CARD_W/2); maxX=Math.max(maxX,n.x+CARD_W/2);
-    minY=Math.min(minY,n.y-CARD_H/2); maxY=Math.max(maxY,n.y+CARD_H/2);
-  });
-  const cont=document.getElementById('tree-container');
-  const cw=cont.clientWidth, ch=cont.clientHeight;
-  const tw=maxX-minX, th=maxY-minY;
-  const scale=Math.min(.88*cw/(tw||1), .85*ch/(th||1), 1.4);
-  const tx=cw/2-scale*(minX+tw/2);
-  const ty=Math.max(30,-minY*scale)+20;
-  lastFitTransform=d3.zoomIdentity.translate(tx,ty).scale(scale);
-
-  if(fitAfter!==false){
-    d3.select('#tree-svg').transition().duration(500).call(zoomBehavior.transform,lastFitTransform);
-  }
-}
-
-function makeCard(h){
-  const card=document.createElement('div');
-  card.className='horse-card'+(h.sex?' '+h.sex:'');
-  card.dataset.id=h.id;
-
-  const SEX_ICON={stallion:'♂',mare:'♀',gelding:'⚲',foal:'🐣'};
-  const SEX_LABEL={stallion:'Stallion',mare:'Mare',gelding:'Gelding',foal:'Foal'};
-
-  card.innerHTML=`
-    ${h.photo
-      ?`<img class="card-photo" src="${h.photo}" alt="${h.name}">`
-      :`<div class="card-icon">${sexIcon(h.sex)}</div>`
-    }
-    <div class="card-name" title="${h.name}">${h.name}</div>
-    <div class="card-meta">
-      ${SEX_ICON[h.sex]||'?'} ${SEX_LABEL[h.sex]||'Unknown'}${h.birthYear?' · '+h.birthYear:''}
-      ${h.color?`<br>${h.color}`:''}
-      ${h.markings?`<br><em style="font-size:.68rem;color:var(--text-muted)">${h.markings}</em>`:''}
-    </div>
-    ${h.onRanch?'<span class="card-badge">🏠 On Ranch</span>':''}
-  `;
-
-  card.addEventListener('click',e=>{ e.stopPropagation(); showDetail(h.id); });
-  return card;
-}
-
-function clearCanvas(){
-  d3.select('#links-g').selectAll('*').remove();
-  document.getElementById('cards-layer').innerHTML='';
-}
-
-// ══════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════
-function toast(msg){
-  document.querySelectorAll('.notif').forEach(n=>n.remove());
-  const n=document.createElement('div'); n.className='notif'; n.textContent=msg;
-  document.body.appendChild(n);
-  setTimeout(()=>n.remove(),2800);
-}
-
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>{
-  hydrate();
-  initD3();
-  draw();
-
-  // Close modal on backdrop click
-  document.getElementById('modal-overlay').addEventListener('click',e=>{
-    if(e.target===document.getElementById('modal-overlay')) closeModal();
-  });
-
-  // Close side panel on tree background click
-  document.getElementById('tree-container').addEventListener('click',()=>closeSidePanel());
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){ closeModal(); closeSidePanel(); }
-    if(e.key==='n' && !e.target.matches('input,textarea,select') && !document.getElementById('modal-overlay').classList.contains('hidden')===false){ openAddModal(); }
-  });
+document.addEventListener('click',e=>{
+  if(!e.target.closest('[data-lang-toggle]')) return;
+  lang = lang==='en'?'es':'en';
+  try{ localStorage.setItem('whft-lang',lang) }catch(_){}
+  applyLang(); if(!$('#app').hidden) render(); if(openSheet) openSheet();
 });
+
+// ═══════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg,ms=2800){ document.querySelectorAll('.toast').forEach(n=>n.remove()); const n=document.createElement('div'); n.className='toast'; n.textContent=msg; document.body.appendChild(n); setTimeout(()=>n.remove(),ms); }
+const byName=(a,b)=>(a.name||'').localeCompare(b.name||'',undefined,{sensitivity:'base'});
+const SEX_EMOJI={stallion:'♂',mare:'♀',gelding:'⚲',unknown:'?'};
+
+// Shrink a phone photo before upload: long edge px → JPEG blob
+async function shrink(file, edge, quality){
+  let src;
+  try{ src = await createImageBitmap(file,{imageOrientation:'from-image'}); }
+  catch(e){
+    src = await new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=URL.createObjectURL(file); });
+  }
+  const w=src.width, h=src.height, k=Math.min(1, edge/Math.max(w,h));
+  const c=document.createElement('canvas'); c.width=Math.round(w*k); c.height=Math.round(h*k);
+  c.getContext('2d').drawImage(src,0,0,c.width,c.height);
+  return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/jpeg',quality));
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STORE — Supabase for real, in-memory for ?demo
+// ═══════════════════════════════════════════════════════════════
+const configured = !SUPABASE_URL.startsWith('PASTE');
+const DEMO = new URLSearchParams(location.search).has('demo') || !configured && location.protocol==='file:';
+let sb = null, me = null;
+
+const store = DEMO ? (()=>{
+  const blobs = {};
+  const uid = ()=>crypto.randomUUID();
+  const now = ()=>new Date().toISOString();
+  const data = { bands:[], horses:[], horse_photos:[] };
+  return {
+    async load(){ return structuredClone(data); },
+    async upsert(table,row){ row={...row, id:row.id||uid(), updated_at:now()}; const a=data[table]; const i=a.findIndex(r=>r.id===row.id); if(i>=0) a[i]={...a[i],...row}; else a.push(row); return structuredClone(row); },
+    async remove(table,id){ data[table]=data[table].filter(r=>r.id!==id); if(table==='horses'){ data.horse_photos=data.horse_photos.filter(p=>p.horse_id!==id); data.horses.forEach(h=>{ if(h.sire_id===id) h.sire_id=null; if(h.dam_id===id) h.dam_id=null; }); } if(table==='bands') data.horses.forEach(h=>{ if(h.band_id===id) h.band_id=null; }); },
+    async uploadFile(path,blob){ blobs[path]=URL.createObjectURL(blob); },
+    async removeFiles(paths){ paths.forEach(p=>delete blobs[p]); },
+    async urls(paths){ const m={}; paths.forEach(p=>m[p]=blobs[p]); return m; },
+    subscribe(){}
+  };
+})() : {
+  async load(){
+    const [b,h,p] = await Promise.all(['bands','horses','horse_photos'].map(tb=>sb.from(tb).select('*')));
+    for(const r of [b,h,p]) if(r.error) throw r.error;
+    return { bands:b.data, horses:h.data, horse_photos:p.data };
+  },
+  async upsert(table,row){
+    row={...row, updated_by:me.email}; if(table!=='horse_photos') row.updated_at=new Date().toISOString(); else { delete row.updated_by; row.created_by=me.email; }
+    const {data,error} = await sb.from(table).upsert(row).select().single();
+    if(error) throw error; return data;
+  },
+  async remove(table,id){ const {error}=await sb.from(table).delete().eq('id',id); if(error) throw error; },
+  async uploadFile(path,blob){ const {error}=await sb.storage.from('horse-photos').upload(path,blob,{contentType:'image/jpeg',upsert:false}); if(error) throw error; },
+  async removeFiles(paths){ if(paths.length){ const {error}=await sb.storage.from('horse-photos').remove(paths); if(error) throw error; } },
+  async urls(paths){
+    const m={}; if(!paths.length) return m;
+    const {data,error}=await sb.storage.from('horse-photos').createSignedUrls(paths,60*60*6);
+    if(error) throw error; data.forEach(d=>{ if(d.signedUrl) m[d.path]=d.signedUrl; }); return m;
+  },
+  subscribe(fn){
+    let tmr; const kick=()=>{ clearTimeout(tmr); tmr=setTimeout(fn,600); };
+    sb.channel('herd').on('postgres_changes',{event:'*',schema:'public'},kick).subscribe();
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let S = { bands:[], horses:[], horse_photos:[] };
+const URLS = {};   // storage path → signed url
+let view='herd', query='', selectedId=null, openSheet=null;
+const H = id=>S.horses.find(h=>h.id===id);
+const photosOf = id=>S.horse_photos.filter(p=>p.horse_id===id).sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));
+function coverOf(h){ const ps=photosOf(h.id); return ps.find(p=>p.id===h.cover_photo_id)||ps[0]||null; }
+const foalsOf = id=>S.horses.filter(h=>h.sire_id===id||h.dam_id===id).sort((a,b)=>(a.birth_year||9999)-(b.birth_year||9999)||byName(a,b));
+
+async function refresh(){
+  try{
+    S = await store.load();
+    const need = S.horse_photos.flatMap(p=>[p.thumb_path,p.path]).filter(p=>!URLS[p]);
+    Object.assign(URLS, await store.urls(need));
+  }catch(e){ console.error(e); toast(t('offline')); }
+  render(); if(openSheet) openSheet();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HERD VIEW
+// ═══════════════════════════════════════════════════════════════
+function avatar(h,cls='av'){
+  const c=coverOf(h), u=c&&URLS[c.thumb_path];
+  return u?`<img class="${cls}" src="${esc(u)}" alt="" loading="lazy">`:`<div class="${cls}">🐎</div>`;
+}
+function metaLine(h){
+  const bits=[];
+  if(h.sex&&h.sex!=='unknown') bits.push(`${SEX_EMOJI[h.sex]} ${t(h.sex)}`);
+  if(h.birth_year) bits.push((h.birth_year_approx?'~':'')+h.birth_year);
+  return bits.join(' · ');
+}
+function render(){
+  const here=S.horses.filter(h=>h.status==='here').length;
+  $('#stats').textContent = S.horses.length?t('stats',S.horses.length,here):'';
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===view));
+  $('#herd').hidden = view!=='herd'; $('#tree').hidden = view!=='tree';
+  if(view==='herd') renderHerd(); else renderTree();
+}
+function matches(h){
+  if(!query) return true;
+  const band=S.bands.find(b=>b.id===h.band_id);
+  return [h.name,h.color,h.markings,h.notes,band&&band.name].join(' ').toLowerCase().includes(query.toLowerCase());
+}
+function renderHerd(){
+  const list=S.horses.filter(matches);
+  if(!S.horses.length){ $('#herd').innerHTML=`<div class="empty"><div class="big">🐎</div>${t('emptyHerd')}</div>`; return; }
+  if(!list.length){ $('#herd').innerHTML=`<div class="empty">${t('noMatch')}</div>`; return; }
+  const groups=[...S.bands].sort(byName).map(b=>({band:b,horses:list.filter(h=>h.band_id===b.id)}));
+  groups.push({band:null,horses:list.filter(h=>!h.band_id||!S.bands.some(b=>b.id===h.band_id))});
+  const statusRank={here:0,missing:1,deceased:2};
+  $('#herd').innerHTML = groups.filter(g=>g.horses.length).map(g=>`
+    <div class="band-h">${esc(g.band?g.band.name:t('noBand'))} <small>${g.horses.length}</small></div>
+    <div class="grid">${g.horses.sort((a,b)=>(statusRank[a.status]||0)-(statusRank[b.status]||0)||byName(a,b)).map(h=>`
+      <div class="hc ${h.sex||'unknown'} ${h.status==='deceased'?'gone':''}" data-open="${h.id}">
+        ${avatar(h)}
+        <div class="nm">${esc(h.name)}</div>
+        <div class="mt">${esc(metaLine(h))||'&nbsp;'}${h.color?`<br>${esc(h.color)}`:''}</div>
+        ${h.status&&h.status!=='here'?`<span class="tag ${h.status}">${t(h.status)}</span>`:''}
+      </div>`).join('')}</div>`).join('');
+}
+document.addEventListener('click',e=>{ const o=e.target.closest('[data-open]'); if(o) showHorse(o.dataset.open); });
+
+// ═══════════════════════════════════════════════════════════════
+//  TREE VIEW — generations top to bottom, both parents drawn
+// ═══════════════════════════════════════════════════════════════
+const NW=150, NH=74, GX=26, GY=90;
+let zoom, fitT=d3.zoomIdentity, treeFitted=false;
+function initTree(){
+  const svg=d3.select('#tree svg');
+  zoom=d3.zoom().scaleExtent([0.1,3]).on('zoom',ev=>d3.select('#tg').attr('transform',ev.transform));
+  svg.call(zoom).on('dblclick.zoom',null);
+  $('#zin').onclick=()=>svg.transition().duration(250).call(zoom.scaleBy,1.35);
+  $('#zout').onclick=()=>svg.transition().duration(250).call(zoom.scaleBy,1/1.35);
+  $('#zfit').onclick=()=>svg.transition().duration(400).call(zoom.transform,fitT);
+}
+function renderTree(){
+  const ids=new Set(S.horses.map(h=>h.id));
+  const par=h=>[h.sire_id,h.dam_id].filter(p=>p&&ids.has(p));
+  const linked=S.horses.filter(h=>par(h).length||S.horses.some(k=>par(k).includes(h.id)));
+  const loners=S.horses.length-linked.length;
+  $('#tnote').textContent = linked.length?t('treeNote',loners):t('treeEmpty');
+
+  // generation = 1 + deepest parent
+  const gen={};
+  const g=(h,seen=new Set())=>{ if(gen[h.id]!=null) return gen[h.id]; if(seen.has(h.id)) return 0; seen.add(h.id); const ps=par(h).map(H); return gen[h.id]= ps.length?1+Math.max(...ps.map(p=>g(p,seen))):0; };
+  linked.forEach(h=>g(h));
+  // pull parentless horses down to sit one row above their first foal
+  linked.forEach(h=>{ if(!par(h).length){ const kids=linked.filter(k=>par(k).includes(h.id)); if(kids.length) gen[h.id]=Math.max(0,Math.min(...kids.map(k=>gen[k.id]))-1); } });
+
+  const rows=[]; linked.forEach(h=>(rows[gen[h.id]]??=[]).push(h));
+  rows.forEach(r=>r&&r.sort((a,b)=>(a.band_id||'').localeCompare(b.band_id||'')||byName(a,b)));
+  const pos={};
+  const place=()=>rows.forEach((r,y)=>r&&r.forEach((h,i)=>pos[h.id]={x:(i-(r.length-1)/2)*(NW+GX),y:y*(NH+GY)}));
+  place();
+  // order children under their parents, parents above their foals
+  for(let pass=0;pass<4;pass++){
+    rows.forEach((r,y)=>{ if(!r||!y) return; r.sort((a,b)=>center(a,par)-center(b,par)); }); place();
+    for(let y=rows.length-2;y>=0;y--){ const r=rows[y]; if(!r) continue; r.sort((a,b)=>kidCenter(a)-kidCenter(b)); } place();
+  }
+  function center(h,par){ const ps=par(h).filter(p=>pos[p]); return ps.length?ps.reduce((s,p)=>s+pos[p].x,0)/ps.length:pos[h.id].x; }
+  function kidCenter(h){ const ks=linked.filter(k=>par(k).includes(h.id)); return ks.length?ks.reduce((s,k)=>s+pos[k.id].x,0)/ks.length:pos[h.id].x; }
+
+  const links=[]; linked.forEach(k=>{ if(k.sire_id&&pos[k.sire_id]) links.push({s:k.sire_id,t:k.id,c:'sire'}); if(k.dam_id&&pos[k.dam_id]) links.push({s:k.dam_id,t:k.id,c:'dam'}); });
+  d3.select('#tlinks').selectAll('path').data(links).join('path')
+    .attr('class',d=>'tlink '+d.c)
+    .attr('d',d=>{ const a=pos[d.s], b=pos[d.t], off=a.x<b.x?-8:a.x>b.x?8:(d.c==='sire'?-8:8), y1=a.y+NH/2, y2=b.y-NH/2, my=(y1+y2)/2; return `M${a.x},${y1} C${a.x},${my} ${b.x+off},${my} ${b.x+off},${y2}`; });
+
+  const nodes=d3.select('#tnodes').selectAll('g.tnode').data(linked,d=>d.id).join(enter=>{
+    const n=enter.append('g').attr('class','tnode');
+    n.append('rect').attr('x',-NW/2).attr('y',-NH/2).attr('width',NW).attr('height',NH).attr('rx',12);
+    n.append('clipPath').attr('id',d=>'c'+d.id).append('circle').attr('cx',-NW/2+34).attr('cy',0).attr('r',24);
+    n.append('circle').attr('cx',-NW/2+34).attr('cy',0).attr('r',25).style('fill','var(--surface)').style('stroke','var(--line)');
+    n.append('text').attr('class','emo').attr('x',-NW/2+34).attr('y',8).style('font-size','22px').text('🐎');
+    n.append('image').attr('x',-NW/2+10).attr('y',-24).attr('width',48).attr('height',48).attr('preserveAspectRatio','xMidYMid slice').attr('clip-path',d=>`url(#c${d.id})`);
+    n.append('circle').attr('class','ring').attr('cx',-NW/2+34).attr('cy',0).attr('r',25).style('fill','none').style('stroke-width',3);
+    n.append('text').attr('class','tn').attr('x',28).attr('y',-4);
+    n.append('text').attr('class','tm').attr('x',28).attr('y',15);
+    n.on('click',(ev,d)=>{ ev.stopPropagation(); showHorse(d.id); });
+    return n;
+  });
+  nodes.attr('transform',d=>`translate(${pos[d.id].x},${pos[d.id].y})`).classed('sel',d=>d.id===selectedId).style('opacity',d=>d.status==='deceased'?.6:1);
+  nodes.select('circle.ring').style('stroke',d=>`var(--${d.sex||'unknown'})`);
+  nodes.select('image').attr('href',d=>{ const c=coverOf(d); return c&&URLS[c.thumb_path]||null; });
+  nodes.select('text.emo').style('display',d=>{ const c=coverOf(d); return c&&URLS[c.thumb_path]?'none':null; });
+  nodes.select('text.tn').text(d=>d.name.length>11?d.name.slice(0,10)+'…':d.name);
+  nodes.select('text.tm').text(d=>metaLine(d));
+
+  $('#tree').style.top = $('.bar').getBoundingClientRect().bottom+'px';
+  if(!linked.length) return;
+  const xs=linked.map(h=>pos[h.id].x), ys=linked.map(h=>pos[h.id].y);
+  const minX=Math.min(...xs)-NW/2, maxX=Math.max(...xs)+NW/2, minY=Math.min(...ys)-NH/2, maxY=Math.max(...ys)+NH/2;
+  const el=$('#tree'), cw=el.clientWidth, ch=el.clientHeight-70;
+  const k=Math.min(.92*cw/(maxX-minX), .9*ch/(maxY-minY), 1.2);
+  fitT=d3.zoomIdentity.translate(cw/2-k*(minX+maxX)/2, 60-k*minY).scale(k);
+  if(!treeFitted){ d3.select('#tree svg').call(zoom.transform,fitT); treeFitted=true; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SHEETS
+// ═══════════════════════════════════════════════════════════════
+function sheet(html, onOpen){
+  $('#sheet-slot').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog"><button class="x" data-close aria-label="Close">×</button>${html}</div>`;
+  onOpen&&onOpen($('#sheet-slot .sheet'));
+}
+function closeSheet(){ $('#sheet-slot').innerHTML=''; openSheet=null; selectedId=null; if(view==='tree') renderTree(); }
+document.addEventListener('click',e=>{ if(e.target.closest('[data-close]')) closeSheet(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('.lightbox')) $('.lightbox').remove(); else closeSheet(); } });
+
+function lightbox(url){ const d=document.createElement('div'); d.className='lightbox'; d.innerHTML=`<img src="${esc(url)}" alt="">`; d.onclick=()=>d.remove(); document.body.appendChild(d); }
+
+function showHorse(id){
+  const h=H(id); if(!h){ closeSheet(); return; }
+  selectedId=id; if(view==='tree') renderTree();
+  openSheet=()=>showHorse(id);
+  const band=S.bands.find(b=>b.id===h.band_id), sire=H(h.sire_id), dam=H(h.dam_id), foals=foalsOf(id);
+  const ps=photosOf(id), cov=coverOf(h);
+  const hl=x=>`<button class="link" data-open="${x.id}">${esc(x.name)}</button>`;
+  sheet(`
+    <h2>${esc(h.name)}</h2>
+    <div class="val" style="color:var(--muted)">${esc(metaLine(h))}${h.status&&h.status!=='here'?` · ${t(h.status)}`:''}</div>
+    ${cov&&URLS[cov.path]?`<img class="hero" src="${esc(URLS[cov.path])}" data-big="${esc(URLS[cov.path])}" alt="">`:''}
+    <div class="two">
+      <div><div class="lbl">${t('band')}</div><div class="val">${esc(band?band.name:'—')}</div></div>
+      <div><div class="lbl">${t('born')}</div><div class="val">${h.birth_year?(h.birth_year_approx?t('about')+' ':'')+h.birth_year:'—'}</div></div>
+      <div><div class="lbl">${t('color')}</div><div class="val">${esc(h.color||'—')}</div></div>
+      <div><div class="lbl">${t('lastSeen')}</div><div class="val">${h.last_seen?esc(new Date(h.last_seen+'T12:00').toLocaleDateString(lang,{year:'numeric',month:'short',day:'numeric'})):'—'}</div></div>
+    </div>
+    ${h.markings?`<div class="lbl">${t('markings')}</div><div class="val">${esc(h.markings)}</div>`:''}
+    <div class="two">
+      <div><div class="lbl">${t('sire')}</div><div class="val">${sire?hl(sire):'—'}</div></div>
+      <div><div class="lbl">${t('dam')}</div><div class="val">${dam?hl(dam):'—'}</div></div>
+    </div>
+    ${foals.length?`<div class="lbl">${t('foals')} (${foals.length})</div><div class="val">${foals.map(f=>`<button class="link" data-open="${f.id}">${esc(f.name)}${f.birth_year?' · '+(f.birth_year_approx?'~':'')+f.birth_year:''}</button>`).join('')}</div>`:''}
+    ${h.notes?`<div class="lbl">${t('notes')}</div><div class="val" style="white-space:pre-wrap">${esc(h.notes)}</div>`:''}
+    ${ps.length>1?`<div class="lbl">${t('photos')} (${ps.length})</div><div class="photos">${ps.map(p=>`<div class="ph ${p.id===(cov&&cov.id)?'cover':''}">${URLS[p.thumb_path]?`<img src="${esc(URLS[p.thumb_path])}" data-big="${esc(URLS[p.path]||'')}" alt="" loading="lazy">`:''}</div>`).join('')}</div>`:''}
+    <div class="actions">
+      <button class="btn btn-primary" id="ed">${t('edit')}</button>
+      <button class="btn" id="af">${t('addFoal')}</button>
+      <button class="btn btn-danger" id="dl" style="margin-left:auto">${t('del')}</button>
+    </div>`, el=>{
+      el.querySelectorAll('[data-big]').forEach(i=>i.onclick=()=>i.dataset.big&&lightbox(i.dataset.big));
+      el.querySelector('#ed').onclick=()=>editHorse(id);
+      el.querySelector('#af').onclick=()=>editHorse(null,{parent:h});
+      el.querySelector('#dl').onclick=()=>deleteHorse(id);
+    });
+}
+
+// ── Add / edit ─────────────────────────────────────────────────
+function descendants(id,set=new Set()){ S.horses.filter(h=>h.sire_id===id||h.dam_id===id).forEach(c=>{ if(!set.has(c.id)){ set.add(c.id); descendants(c.id,set); } }); return set; }
+
+function editHorse(id, opts={}){
+  const h = id?structuredClone(H(id)):{ name:'', sex:'unknown', status:'here', birth_year_approx:false };
+  if(opts.parent){ if(opts.parent.sex==='stallion') h.sire_id=opts.parent.id; else if(opts.parent.sex==='mare') h.dam_id=opts.parent.id; h.band_id=opts.parent.band_id; }
+  // photos: existing rows + new files waiting for upload
+  let existing = id?photosOf(id):[];
+  const pending = [];        // {file, url}
+  const removed = [];        // rows to delete on save
+  let cover = h.cover_photo_id||null;
+
+  openSheet=null;
+  const blocked = id?descendants(id).add(id):new Set();
+  const opt=(list,sel)=>list.filter(x=>!blocked.has(x.id)).sort(byName).map(x=>`<option value="${x.id}" ${x.id===sel?'selected':''}>${esc(x.name)}${x.birth_year?' ('+x.birth_year+')':''}</option>`).join('');
+  const sires=S.horses.filter(x=>x.sex==='stallion'||x.sex==='unknown'||!x.sex||x.id===h.sire_id);
+  const dams=S.horses.filter(x=>x.sex==='mare'||x.sex==='unknown'||!x.sex||x.id===h.dam_id);
+
+  sheet(`
+    <h2>${id?t('editHorse'):t('newHorse')}</h2>
+    <div class="fg" style="margin-top:12px"><label>${t('photos')}</label><div class="pgrid" id="pg"></div>
+      <input type="file" id="pf" accept="image/*" multiple hidden></div>
+    <div class="fg"><label>${t('name')} *</label><input id="f-name" value="${esc(h.name)}" placeholder="${t('namePh')}" autocomplete="off"></div>
+    <div class="row2">
+      <div class="fg"><label>${t('sex')}</label><select id="f-sex">${['unknown','stallion','mare','gelding'].map(s=>`<option value="${s}" ${h.sex===s?'selected':''}>${t(s)}</option>`).join('')}</select></div>
+      <div class="fg"><label>${t('status')}</label><select id="f-status">${['here','missing','deceased'].map(s=>`<option value="${s}" ${h.status===s?'selected':''}>${t(s)}</option>`).join('')}</select></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>${t('year')}</label><input id="f-year" type="number" inputmode="numeric" min="1950" max="2100" value="${h.birth_year??''}">
+        <label class="chk"><input type="checkbox" id="f-approx" ${h.birth_year_approx?'checked':''}> ${t('yearApprox')}</label></div>
+      <div class="fg"><label>${t('lastSeen')}</label><input id="f-seen" type="date" value="${h.last_seen??''}"></div>
+    </div>
+    <div class="fg"><label>${t('band')}</label><select id="f-band"><option value="">${t('noBandOpt')}</option>${opt(S.bands,h.band_id)}<option value="__new">${t('newBandOpt')}</option></select></div>
+    <div class="row2">
+      <div class="fg"><label>${t('sire')}</label><select id="f-sire"><option value="">${t('unknownOpt')}</option>${opt(sires,h.sire_id)}</select></div>
+      <div class="fg"><label>${t('dam')}</label><select id="f-dam"><option value="">${t('unknownOpt')}</option>${opt(dams,h.dam_id)}</select></div>
+    </div>
+    <div class="fg"><label>${t('color')}</label><input id="f-color" value="${esc(h.color)}" placeholder="${t('colorPh')}"></div>
+    <div class="fg"><label>${t('markings')}</label><input id="f-markings" value="${esc(h.markings)}" placeholder="${t('markingsPh')}"></div>
+    <div class="fg"><label>${t('notes')}</label><textarea id="f-notes" placeholder="${t('notesPh')}">${esc(h.notes)}</textarea></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="sv">${t('save')}</button>
+      <button class="btn" data-close>${t('cancel')}</button>
+    </div>`, el=>{
+      const pg=el.querySelector('#pg'), pf=el.querySelector('#pf');
+      const drawPhotos=()=>{
+        const all=[...existing.map(p=>({key:p.id,url:URLS[p.thumb_path],row:p})), ...pending.map(p=>({key:p.key,url:p.url,pend:p}))];
+        if(!cover&&all.length) cover=all[0].key;
+        pg.innerHTML = all.map(p=>`<div class="ph ${p.key===cover?'cover':''}">${p.url?`<img src="${esc(p.url)}" alt="">`:''}
+          <button class="rm" data-rm="${p.key}">${t('remove')}</button>
+          <button class="cv" data-cv="${p.key}">${p.key===cover?t('cover'):t('makeCover')}</button></div>`).join('')
+          + `<div class="ph add" id="padd"><span>📷</span>${t('addPhoto')}</div>`;
+        pg.querySelector('#padd').onclick=()=>pf.click();
+        pg.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>{ cover=b.dataset.cv; drawPhotos(); });
+        pg.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
+          if(!confirm(t('confirmPhoto'))) return;
+          const k=b.dataset.rm, ex=existing.find(p=>p.id===k);
+          if(ex){ removed.push(ex); existing=existing.filter(p=>p.id!==k); }
+          else pending.splice(pending.findIndex(p=>p.key===k),1);
+          if(cover===k) cover=null; drawPhotos();
+        });
+      };
+      pf.onchange=async()=>{
+        for(const file of pf.files){
+          try{
+            const [full,thumb]=await Promise.all([shrink(file,1600,.82),shrink(file,360,.78)]);
+            pending.push({key:'new'+Math.random().toString(36).slice(2),full,thumb,url:URL.createObjectURL(thumb)});
+          }catch(e){ console.error(e); toast(t('photoFail')); }
+        }
+        pf.value=''; drawPhotos();
+      };
+      drawPhotos();
+
+      el.querySelector('#f-band').onchange=async e=>{
+        if(e.target.value!=='__new') return;
+        const name=(prompt(t('newBandPrompt'))||'').trim();
+        if(!name){ e.target.value=h.band_id||''; return; }
+        try{ const b=await store.upsert('bands',{name}); S.bands.push(b); const o=new Option(b.name,b.id,true,true); e.target.insertBefore(o,e.target.lastElementChild); }
+        catch(err){ console.error(err); toast(t('offline')); e.target.value=h.band_id||''; }
+      };
+
+      el.querySelector('#sv').onclick=async()=>{
+        const v=s=>el.querySelector(s).value.trim();
+        const name=v('#f-name'); if(!name){ toast(t('needName')); el.querySelector('#f-name').focus(); return; }
+        const btn=el.querySelector('#sv'); btn.disabled=true; btn.textContent=t('saving'); el.classList.add('busy');
+        try{
+          const row={ name, sex:v('#f-sex'), status:v('#f-status'),
+            birth_year:v('#f-year')?+v('#f-year'):null, birth_year_approx:el.querySelector('#f-approx').checked,
+            last_seen:v('#f-seen')||null, band_id:(v('#f-band')&&v('#f-band')!=='__new')?v('#f-band'):null,
+            sire_id:v('#f-sire')||null, dam_id:v('#f-dam')||null,
+            color:v('#f-color')||null, markings:v('#f-markings')||null, notes:v('#f-notes')||null };
+          if(id) row.id=id;
+          const saved=await store.upsert('horses',row);
+          // photos
+          const keyToId={};
+          for(let i=0;i<pending.length;i++){
+            toast(t('uploading',i+1,pending.length),60000);
+            const p=pending[i], stem=`${saved.id}/${crypto.randomUUID()}`;
+            await store.uploadFile(stem+'.jpg',p.full);
+            await store.uploadFile(stem+'_thumb.jpg',p.thumb);
+            const pr=await store.upsert('horse_photos',{horse_id:saved.id,path:stem+'.jpg',thumb_path:stem+'_thumb.jpg'});
+            keyToId[p.key]=pr.id;
+            URLS[pr.path]=URL.createObjectURL(p.full); URLS[pr.thumb_path]=p.url;
+          }
+          for(const r of removed){ await store.remove('horse_photos',r.id); await store.removeFiles([r.path,r.thumb_path]); }
+          const coverId=keyToId[cover]||cover||null;
+          if(coverId!==saved.cover_photo_id) await store.upsert('horses',{id:saved.id,name:saved.name,cover_photo_id:coverId});
+          document.querySelectorAll('.toast').forEach(n=>n.remove());
+          toast(t('saved',name));
+          await refresh(); showHorse(saved.id);
+        }catch(e){
+          console.error(e); toast(t('offline'));
+          btn.disabled=false; btn.textContent=t('save'); el.classList.remove('busy');
+        }
+      };
+      if(!id) setTimeout(()=>el.querySelector('#f-name').focus(),60);
+    });
+}
+
+async function deleteHorse(id){
+  const h=H(id); if(!h||!confirm(t('confirmDel',h.name))) return;
+  try{
+    const ps=photosOf(id);
+    await store.remove('horses',id);
+    await store.removeFiles(ps.flatMap(p=>[p.path,p.thumb_path]));
+    closeSheet(); toast(t('deleted',h.name)); await refresh();
+  }catch(e){ console.error(e); toast(t('offline')); }
+}
+
+// ── Menu ───────────────────────────────────────────────────────
+function showMenu(){
+  openSheet=showMenu;
+  sheet(`<h2>${t('menu')}</h2>
+    <div class="val" style="color:var(--muted);margin-bottom:14px">${me?esc(t('signedInAs',me.email)):esc(t('demoBanner'))}</div>
+    <div style="display:grid;gap:8px">
+      <button class="btn" id="m-bands">${t('menuBands')}</button>
+      <button class="btn" id="m-exp">${t('menuExport')}</button>
+      <button class="btn" id="m-imp">${t('menuImport')}</button>
+      <input type="file" id="m-file" accept=".json,application/json" hidden>
+      ${me?`<button class="btn" id="m-out">${t('menuSignOut')}</button>`:''}
+    </div>`, el=>{
+      el.querySelector('#m-exp').onclick=exportBackup;
+      el.querySelector('#m-imp').onclick=()=>el.querySelector('#m-file').click();
+      el.querySelector('#m-file').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ await importOld(JSON.parse(await f.text())); }catch(err){ console.error(err); toast(t('offline')); } };
+      el.querySelector('#m-bands').onclick=renameBands;
+      const out=el.querySelector('#m-out'); if(out) out.onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
+    });
+}
+async function renameBands(){
+  for(const b of [...S.bands].sort(byName)){
+    const n=prompt(t('renameBand',b.name),b.name); if(n===null) continue;
+    try{ if(!n.trim()) await store.remove('bands',b.id); else if(n.trim()!==b.name) await store.upsert('bands',{id:b.id,name:n.trim()}); }
+    catch(e){ console.error(e); toast(t('offline')); }
+  }
+  await refresh();
+}
+function exportBackup(){
+  const out={ exported:new Date().toISOString(), bands:S.bands, horses:S.horses, horse_photos:S.horse_photos };
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
+  a.download=`wild-horses-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+}
+
+// ── Bring in horses from the old one-device version (localStorage 'whft2') ──
+async function importOld(d){
+  const old = Object.values(d.horses||d).filter(x=>x&&x.name);
+  if(!old.length) return;
+  const idMap={};
+  for(const o of old){
+    const row=await store.upsert('horses',{ name:o.name, sex:['stallion','mare','gelding'].includes(o.sex)?o.sex:'unknown',
+      birth_year:o.birthYear||null, color:o.color||null, markings:o.markings||null, notes:o.comments||null, status:'here' });
+    idMap[o.id]=row.id;
+    if(o.photo&&o.photo.startsWith('data:')){
+      try{ const blob=await (await fetch(o.photo)).blob(); const [full,thumb]=await Promise.all([shrink(blob,1600,.82),shrink(blob,360,.78)]);
+        const stem=`${row.id}/${crypto.randomUUID()}`; await store.uploadFile(stem+'.jpg',full); await store.uploadFile(stem+'_thumb.jpg',thumb);
+        const pr=await store.upsert('horse_photos',{horse_id:row.id,path:stem+'.jpg',thumb_path:stem+'_thumb.jpg'});
+        URLS[pr.path]=URL.createObjectURL(full); URLS[pr.thumb_path]=URL.createObjectURL(thumb);
+      }catch(e){ console.error(e); }
+    }
+  }
+  for(const o of old){ if((o.sireId&&idMap[o.sireId])||(o.damId&&idMap[o.damId])) await store.upsert('horses',{id:idMap[o.id],name:o.name,sire_id:idMap[o.sireId]||null,dam_id:idMap[o.damId]||null}); }
+  toast(t('imported',old.length)); closeSheet(); await refresh();
+}
+function checkOldData(){
+  let old; try{ old=JSON.parse(localStorage.getItem('whft2')||'null'); }catch(e){}
+  const n=old?Object.keys(old).length:0;
+  if(!n||localStorage.getItem('whft2-done')) return;
+  $('#banner-slot').innerHTML=`<div class="banner">${esc(t('oldFound',n))}<br><button class="btn btn-primary" id="old-yes">${t('oldImport')}</button><button class="btn" id="old-no">${t('oldDismiss')}</button></div>`;
+  $('#old-yes').onclick=async()=>{ $('#banner-slot').innerHTML=''; await importOld(old); try{ localStorage.setItem('whft2-done','1') }catch(e){} };
+  $('#old-no').onclick=()=>{ $('#banner-slot').innerHTML=''; };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════════════
+function show(id){ ['login','denied','app'].forEach(s=>$('#'+s).hidden=s!==id); }
+
+async function startApp(){
+  show('app'); initTree();
+  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ view=b.dataset.view; render(); });
+  $('#search').oninput=e=>{ query=e.target.value; render(); };
+  $('#add-btn').onclick=()=>editHorse(null);
+  $('#menu-btn').onclick=showMenu;
+  window.addEventListener('resize',()=>{ if(view==='tree'){ treeFitted=false; renderTree(); } });
+  if(DEMO) $('#banner-slot').innerHTML=`<div class="banner" data-t="demoBanner">${esc(t('demoBanner'))}</div>`;
+  await refresh();
+  store.subscribe(refresh);
+  checkOldData();
+}
+
+async function boot(){
+  applyLang();
+  if(DEMO) return startApp();
+  if(!configured || !window.supabase){
+    show('denied'); $('#denied h1').textContent=t('setupTitle');
+    $('#denied-msg').innerHTML=`${esc(t('setup'))}<br><br><a class="btn" href="?demo">${t('demo')}</a>`; $('#denied-out').hidden=true; return;
+  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session) return showLogin();
+  me = session.user;
+  const { data:isMember, error } = await sb.rpc('is_member');
+  if(error){ console.error(error); toast(t('offline')); }
+  if(!isMember){
+    show('denied'); $('#denied-msg').textContent=t('denied',me.email);
+    $('#denied-out').onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
+    return;
+  }
+  startApp();
+}
+
+function showLogin(){
+  show('login');
+  let email='';
+  $('#send-code').onclick=async()=>{
+    email=$('#email').value.trim().toLowerCase(); if(!email.includes('@')) return $('#email').focus();
+    const b=$('#send-code'); b.disabled=true;
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } });
+    b.disabled=false;
+    if(error){ console.error(error); return toast(error.message||t('offline'),5000); }
+    $('#login-email').hidden=true; $('#login-code').hidden=false;
+    $('#code-msg').textContent=t('codeSent',email); $('#code').focus();
+  };
+  $('#email').onkeydown=e=>{ if(e.key==='Enter') $('#send-code').click(); };
+  $('#verify-code').onclick=async()=>{
+    const token=$('#code').value.replace(/\D/g,''); if(!token) return;
+    const { error } = await sb.auth.verifyOtp({ email, token, type:'email' });
+    if(error){ console.error(error); return toast(t('badCode'),4000); }
+    location.reload();
+  };
+  $('#code').onkeydown=e=>{ if(e.key==='Enter') $('#verify-code').click(); };
+  $('#back-email').onclick=()=>{ $('#login-email').hidden=false; $('#login-code').hidden=true; };
+}
+
+// magic-link sign-ins land here with tokens in the URL; getSession() in boot picks them up
+boot();
 </script>
 </body>
 </html>
