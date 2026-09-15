@@ -7,7 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="robots" content="noindex">
 <title>Wild Horse Family Tree</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐎</text></svg>">
+<link rel="icon" type="image/png" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/mark.jpg">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
@@ -61,7 +62,10 @@ header .sub{font-size:.72rem;color:var(--muted);font-style:italic}
 .hc.stallion .av{border-color:var(--stallion)} .hc.mare .av{border-color:var(--mare)} .hc.gelding .av{border-color:var(--gelding)}
 .hc.gone{opacity:.6}
 .av{width:84px;height:84px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px;background:var(--surface);border:2px solid var(--line)}
-div.av{display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+.av.none{filter:grayscale(1) sepia(.35);opacity:.38}
+.logo{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);flex-shrink:0}
+.poster{display:block;width:min(220px,62vw);margin:0 auto 6px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.55)}
+.empty .poster{width:min(170px,50vw);opacity:.9;margin-bottom:14px}
 .hc .nm{font-weight:bold;color:var(--accent-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hc .mt{font-size:.74rem;color:var(--muted);line-height:1.45;margin-top:2px}
 .tag{display:inline-block;font-size:.66rem;padding:2px 7px;border-radius:999px;margin-top:5px;border:1px solid var(--line);color:var(--muted)}
@@ -150,7 +154,7 @@ div.av{display:flex;align-items:center;justify-content:center;font-size:2.2rem}
 <!-- ═══ LOGIN ═══ -->
 <div id="login" hidden>
   <div class="login">
-    <div class="big">🐎</div>
+    <img class="poster" src="img/poster.jpg" alt="">
     <h1 data-t="title"></h1>
     <div id="login-email">
       <p data-t="loginIntro"></p>
@@ -180,7 +184,7 @@ div.av{display:flex;align-items:center;justify-content:center;font-size:2.2rem}
 <!-- ═══ APP ═══ -->
 <div id="app" hidden>
   <header>
-    <span style="font-size:1.7rem">🐎</span>
+    <img class="logo" src="img/mark.jpg" alt="">
     <div><h1 data-t="title"></h1><div class="sub" id="stats"></div></div>
     <div class="hdr-right">
       <button class="chip" data-lang-toggle></button>
@@ -394,7 +398,7 @@ async function refresh(){
 // ═══════════════════════════════════════════════════════════════
 function avatar(h,cls='av'){
   const c=coverOf(h), u=c&&URLS[c.thumb_path];
-  return u?`<img class="${cls}" src="${esc(u)}" alt="" loading="lazy">`:`<div class="${cls}">🐎</div>`;
+  return u?`<img class="${cls}" src="${esc(u)}" alt="" loading="lazy">`:`<img class="${cls} none" src="img/mark.jpg" alt="">`;
 }
 function metaLine(h){
   const bits=[];
@@ -416,7 +420,7 @@ function matches(h){
 }
 function renderHerd(){
   const list=S.horses.filter(matches);
-  if(!S.horses.length){ $('#herd').innerHTML=`<div class="empty"><div class="big">🐎</div>${t('emptyHerd')}</div>`; return; }
+  if(!S.horses.length){ $('#herd').innerHTML=`<div class="empty"><img class="poster" src="img/poster.jpg" alt="">${t('emptyHerd')}</div>`; return; }
   if(!list.length){ $('#herd').innerHTML=`<div class="empty">${t('noMatch')}</div>`; return; }
   const groups=[...S.bands].sort(byName).map(b=>({band:b,horses:list.filter(h=>h.band_id===b.id)}));
   groups.push({band:null,horses:list.filter(h=>!h.band_id||!S.bands.some(b=>b.id===h.band_id))});
@@ -483,7 +487,6 @@ function renderTree(){
     n.append('rect').attr('x',-NW/2).attr('y',-NH/2).attr('width',NW).attr('height',NH).attr('rx',12);
     n.append('clipPath').attr('id',d=>'c'+d.id).append('circle').attr('cx',-NW/2+34).attr('cy',0).attr('r',24);
     n.append('circle').attr('cx',-NW/2+34).attr('cy',0).attr('r',25).style('fill','var(--surface)').style('stroke','var(--line)');
-    n.append('text').attr('class','emo').attr('x',-NW/2+34).attr('y',8).style('font-size','22px').text('🐎');
     n.append('image').attr('x',-NW/2+10).attr('y',-24).attr('width',48).attr('height',48).attr('preserveAspectRatio','xMidYMid slice').attr('clip-path',d=>`url(#c${d.id})`);
     n.append('circle').attr('class','ring').attr('cx',-NW/2+34).attr('cy',0).attr('r',25).style('fill','none').style('stroke-width',3);
     n.append('text').attr('class','tn').attr('x',28).attr('y',-4);
@@ -493,8 +496,9 @@ function renderTree(){
   });
   nodes.attr('transform',d=>`translate(${pos[d.id].x},${pos[d.id].y})`).classed('sel',d=>d.id===selectedId).style('opacity',d=>d.status==='deceased'?.6:1);
   nodes.select('circle.ring').style('stroke',d=>`var(--${d.sex||'unknown'})`);
-  nodes.select('image').attr('href',d=>{ const c=coverOf(d); return c&&URLS[c.thumb_path]||null; });
-  nodes.select('text.emo').style('display',d=>{ const c=coverOf(d); return c&&URLS[c.thumb_path]?'none':null; });
+  const coverUrl=d=>{ const c=coverOf(d); return c&&URLS[c.thumb_path]||null; };
+  nodes.select('image').attr('href',d=>coverUrl(d)||'img/mark.jpg')
+    .style('filter',d=>coverUrl(d)?null:'grayscale(1) sepia(.35)').style('opacity',d=>coverUrl(d)?1:.38);
   nodes.select('text.tn').text(d=>d.name.length>11?d.name.slice(0,10)+'…':d.name);
   nodes.select('text.tm').text(d=>metaLine(d));
 
