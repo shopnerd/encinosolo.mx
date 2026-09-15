@@ -251,6 +251,7 @@ const T = {
     menuExport:'Download a backup', menuImport:'Bring in a backup file', menuBands:'Rename bands', menuSignOut:'Sign out', menu:'Menu',
     signedInAs:e=>`Signed in as ${e}`, renameBand:b=>`New name for “${b}” (leave empty to delete the band):`,
     imported:n=>`Brought in ${n} horses`,
+    restored:n=>`Backup restored — ${n} horse${n===1?'':'s'}`, restoreFail:'Couldn\'t put that backup back. Check the connection and try again.',
     oldFound:n=>`This phone still has ${n} horse${n>1?'s':''} saved from the old version of this page.`, oldImport:'Bring them in', oldDismiss:'Not now',
     setupTitle:'Almost ready', setup:'This page isn\'t connected to its database yet. Will needs to finish setup (SETUP.md).', demo:'Try the demo',
     demoBanner:'Demo mode — nothing here is saved.'
@@ -284,6 +285,7 @@ const T = {
     menuExport:'Descargar respaldo', menuImport:'Cargar un respaldo', menuBands:'Renombrar manadas', menuSignOut:'Salir', menu:'Menú',
     signedInAs:e=>`Conectado como ${e}`, renameBand:b=>`Nuevo nombre para “${b}” (déjalo vacío para borrar la manada):`,
     imported:n=>`Se cargaron ${n} caballos`,
+    restored:n=>`Respaldo restaurado — ${n} caballo${n===1?'':'s'}`, restoreFail:'No se pudo restaurar ese respaldo. Revisa la señal e intenta otra vez.',
     oldFound:n=>`Este teléfono todavía tiene ${n} caballo${n>1?'s':''} de la versión anterior de esta página.`, oldImport:'Traerlos', oldDismiss:'Ahora no',
     setupTitle:'Casi listo', setup:'Esta página todavía no está conectada a su base de datos. Will tiene que terminar la instalación (SETUP.md).', demo:'Ver la demostración',
     demoBanner:'Modo demostración — nada se guarda.'
@@ -705,7 +707,7 @@ function showMenu(){
     </div>`, el=>{
       el.querySelector('#m-exp').onclick=exportBackup;
       el.querySelector('#m-imp').onclick=()=>el.querySelector('#m-file').click();
-      el.querySelector('#m-file').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ await importOld(JSON.parse(await f.text())); }catch(err){ console.error(err); toast(t('offline')); } };
+      el.querySelector('#m-file').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; try{ const d=JSON.parse(await f.text()); if(d&&d.exported) await restoreBackup(d); else await importOld(d); }catch(err){ console.error(err); toast(t('offline')); } };
       el.querySelector('#m-bands').onclick=renameBands;
       const out=el.querySelector('#m-out'); if(out) out.onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
     });
@@ -723,6 +725,27 @@ function exportBackup(){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
   a.download=`wild-horses-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+}
+
+// ── Put back a backup file this app wrote (the exportBackup shape) ──
+const BACKUP_COLS = {
+  bands:['id','name','notes','created_at','updated_at','updated_by'],
+  horses:['id','name','sex','birth_year','birth_year_approx','color','markings','band_id','sire_id','dam_id','status','last_seen','notes','cover_photo_id','created_at','updated_at','updated_by'],
+  horse_photos:['id','horse_id','path','thumb_path','created_at','created_by']
+};
+async function restoreBackup(d){
+  const rowsOf = tb => (Array.isArray(d[tb])?d[tb]:[]).filter(r=>r&&r.id)
+    .map(r=>{ const o={}; for(const c of BACKUP_COLS[tb]) if(r[c]!==undefined) o[c]=r[c]; return o; });
+  // bands first, then horses, then photos — so band_id / sire_id / dam_id / cover_photo_id all land on rows that exist
+  const tables=[['bands',rowsOf('bands')],['horses',rowsOf('horses')],['horse_photos',rowsOf('horse_photos')]];
+  try{
+    for(const [tb,rows] of tables){
+      if(!rows.length) continue;
+      const {error}=await sb.from(tb).upsert(rows,{onConflict:'id'});
+      if(error) throw error;
+    }
+  }catch(e){ console.error(e); toast(t('restoreFail')); return; }
+  toast(t('restored',tables[1][1].length)); closeSheet(); await refresh();
 }
 
 // ── Bring in horses from the old one-device version (localStorage 'whft2') ──
