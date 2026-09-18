@@ -99,8 +99,10 @@ header .sub{font-size:.72rem;color:var(--muted);font-style:italic}
 @media (min-width:760px){
   .sheet{left:auto;top:0;width:420px;max-height:none;border-top:0;border-left:2px solid var(--accent);border-radius:0;animation:none}
 }
-.sheet h2{color:var(--accent-2);font-size:1.3rem;margin-bottom:2px;padding-right:40px}
-.sheet .x{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:10px;background:none;border:0;font-size:1.6rem;color:var(--muted)}
+.sheet h2{color:var(--accent-2);font-size:1.3rem;margin-bottom:2px;padding-right:110px}
+/* zero-height bar pinned to the sheet's top so Close stays reachable while scrolling a long form */
+.sheet-top{position:sticky;top:0;height:0;z-index:5}
+.sheet .x{position:absolute;right:-6px;top:-6px;height:40px;padding:0 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.95rem;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.35)}
 .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 4px}
 .val{font-size:.95rem;line-height:1.5}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
@@ -239,7 +241,7 @@ const T = {
     here:'Here now', missing:'Not seen lately', deceased:'Passed away',
     born:'Born', about:'about', color:'Color', markings:'Markings', band:'Band', status:'Status', lastSeen:'Last seen',
     sire:'Sire (father)', dam:'Dam (mother)', foals:'Foals', notes:'Notes', photos:'Photos',
-    edit:'Edit', addFoal:'+ Foal', del:'Delete', save:'Save', cancel:'Cancel', saving:'Saving…',
+    edit:'Edit', addFoal:'+ Foal', del:'Delete', save:'Save', cancel:'Cancel', close:'Close', saving:'Saving…',
     newHorse:'New horse', editHorse:'Edit horse', name:'Name', namePh:'e.g. Luna', sex:'Sex',
     year:'Birth year', yearApprox:'Year is a guess', colorPh:'e.g. Bay, Palomino', markingsPh:'e.g. White blaze, two socks',
     unknownOpt:'— Unknown —', noBandOpt:'— No band —', newBandOpt:'+ New band…', newBandPrompt:'Name of the new band:',
@@ -273,7 +275,7 @@ const T = {
     here:'Aquí ahora', missing:'No se ha visto', deceased:'Falleció',
     born:'Nació', about:'aprox.', color:'Color', markings:'Marcas', band:'Manada', status:'Estado', lastSeen:'Última vez visto',
     sire:'Padre', dam:'Madre', foals:'Potros', notes:'Notas', photos:'Fotos',
-    edit:'Editar', addFoal:'+ Potro', del:'Borrar', save:'Guardar', cancel:'Cancelar', saving:'Guardando…',
+    edit:'Editar', addFoal:'+ Potro', del:'Borrar', save:'Guardar', cancel:'Cancelar', close:'Cerrar', saving:'Guardando…',
     newHorse:'Caballo nuevo', editHorse:'Editar caballo', name:'Nombre', namePh:'ej. Luna', sex:'Sexo',
     year:'Año de nacimiento', yearApprox:'El año es aproximado', colorPh:'ej. Bayo, Palomino', markingsPh:'ej. Lucero, dos calcetines',
     unknownOpt:'— Desconocido —', noBandOpt:'— Sin manada —', newBandOpt:'+ Manada nueva…', newBandPrompt:'Nombre de la manada nueva:',
@@ -517,11 +519,18 @@ function renderTree(){
 // ═══════════════════════════════════════════════════════════════
 //  SHEETS
 // ═══════════════════════════════════════════════════════════════
+// An open sheet adds one browser-history entry, so the phone's Back button/swipe closes it instead of leaving the site.
+let sheetInHistory=false;
 function sheet(html, onOpen){
-  $('#sheet-slot').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog"><button class="x" data-close aria-label="Close">×</button>${html}</div>`;
+  if(!sheetInHistory){ history.pushState({sheet:1},''); sheetInHistory=true; }
+  $('#sheet-slot').innerHTML=`<div class="scrim" data-close></div><div class="sheet" role="dialog"><div class="sheet-top"><button class="x" data-close>✕ ${t('close')}</button></div>${html}</div>`;
   onOpen&&onOpen($('#sheet-slot .sheet'));
 }
-function closeSheet(){ $('#sheet-slot').innerHTML=''; openSheet=null; selectedId=null; if(view==='tree') renderTree(); }
+function closeSheet(){
+  $('#sheet-slot').innerHTML=''; openSheet=null; selectedId=null; if(view==='tree') renderTree();
+  if(sheetInHistory){ sheetInHistory=false; history.back(); }
+}
+window.addEventListener('popstate',()=>{ if(sheetInHistory){ sheetInHistory=false; closeSheet(); } });
 document.addEventListener('click',e=>{ if(e.target.closest('[data-close]')) closeSheet(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('.lightbox')) $('.lightbox').remove(); else closeSheet(); } });
 
