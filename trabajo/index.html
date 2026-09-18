@@ -976,6 +976,9 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 setInterval(()=>{ if(document.visibilityState==='visible') sync(); }, 45000);
 
 /* ---------- sign in ---------- */
+// Give up after 15 s so a blocked connection shows a message instead of spinning forever.
+const within=(p,ms=15000)=>Promise.race([p,new Promise(r=>setTimeout(()=>r({error:{timeout:true}}),ms))]);
+const NO_SERVER='Can’t reach the server. Try again near the house Wi-Fi. On an iPhone, turn off Settings → Wi-Fi → ⓘ → Limit IP Address Tracking. · No se pudo conectar. Intenta otra vez cerca del Wi-Fi de la casa.';
 function showGate(text, withSignOut){
  $('#app').hidden=true; $('#gate').hidden=false;
  $('#gateLogin').hidden=!!text; $('#gateMsg').hidden=!text;
@@ -990,9 +993,10 @@ function showLogin(){
  $('#sendCode').onclick=async()=>{
   if(busy||!readEmail()) return; err('');
   const b=$('#sendCode'); busy=true; b.disabled=true; b.textContent='Sending… · Enviando…';
-  const {error}=await sb.auth.signInWithOtp({email, options:{emailRedirectTo:location.origin+location.pathname}});
+  const {error}=await within(sb.auth.signInWithOtp({email, options:{emailRedirectTo:location.origin+location.pathname}}));
   busy=false; b.disabled=false; b.textContent='Send me a code · Mandar código';
   if(error){
+   if(error.timeout) return err(NO_SERVER);
    if(error.status===429||/rate limit/i.test(error.message)) return err('Too many codes asked for. Use the code from the newest email you already got (tap “I already have a code”), or wait an hour. · Demasiados códigos. Usa el código del correo más nuevo o espera una hora.');
    return err(error.message);
   }
@@ -1004,9 +1008,10 @@ function showLogin(){
   if(busy) return;
   const token=$('#code').value.replace(/\D/g,''); if(!token){ $('#code').focus(); return; }
   const b=$('#verify'); busy=true; b.disabled=true; b.textContent='Checking… · Revisando…'; err('');
-  const {error}=await sb.auth.verifyOtp({email, token, type:'email'});
+  const {error}=await within(sb.auth.verifyOtp({email, token, type:'email'}));
   if(error){
    busy=false; b.disabled=false; b.textContent='Sign in · Entrar';
+   if(error.timeout) return err(NO_SERVER);
    return err('That code didn’t work. Open the NEWEST email (Gmail stacks them — scroll to the bottom of the thread) and type that code. Codes last one hour. · Ese código no funcionó. Usa el correo más nuevo.');
   }
   b.textContent='Signed in · Adentro';

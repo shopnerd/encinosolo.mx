@@ -816,23 +816,26 @@ async function boot(){
   startApp();
 }
 
+// Give up after 15 s so a blocked connection shows a message instead of hanging forever.
+const within=(p,ms=15000)=>Promise.race([p,new Promise(r=>setTimeout(()=>r({error:{timeout:true}}),ms))]);
+
 function showLogin(){
   show('login');
   let email='';
   $('#send-code').onclick=async()=>{
     email=$('#email').value.trim().toLowerCase(); if(!email.includes('@')) return $('#email').focus();
     const b=$('#send-code'); b.disabled=true;
-    const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } });
+    const { error } = await within(sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin+location.pathname } }));
     b.disabled=false;
-    if(error){ console.error(error); return toast(error.message||t('offline'),5000); }
+    if(error){ console.error(error); return toast(error.timeout ? t('offline') : error.message||t('offline'),6000); }
     $('#login-email').hidden=true; $('#login-code').hidden=false;
     $('#code-msg').textContent=t('codeSent',email); $('#code').focus();
   };
   $('#email').onkeydown=e=>{ if(e.key==='Enter') $('#send-code').click(); };
   $('#verify-code').onclick=async()=>{
     const token=$('#code').value.replace(/\D/g,''); if(!token) return;
-    const { error } = await sb.auth.verifyOtp({ email, token, type:'email' });
-    if(error){ console.error(error); return toast(t('badCode'),4000); }
+    const { error } = await within(sb.auth.verifyOtp({ email, token, type:'email' }));
+    if(error){ console.error(error); return toast(error.timeout ? t('offline') : t('badCode'),error.timeout ? 6000 : 4000); }
     location.reload();
   };
   $('#code').onkeydown=e=>{ if(e.key==='Enter') $('#verify-code').click(); };
